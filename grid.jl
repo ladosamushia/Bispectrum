@@ -87,3 +87,62 @@ function grid_r(Ngrid, x, y, z)
     return grid
 
 end
+
+"""
+Fourier transform real space grid.
+
+Parameters:
+    grid_r: 3D array
+
+Output:
+    grid_k: 3D complex array
+"""
+
+function grid_k(grid_r)
+
+    rfftw(grid_r)
+
+end
+
+"""
+Compute power spectrum.
+
+Parameters:
+    grid_k: 3D complex array
+        Fourier grid
+    dk: float
+        k-bin spacing
+    Nk: int
+        number of k bins
+    dL: float
+        grid cell size in real space
+
+Output:
+    Pk: Array 
+        Power spectrum
+
+"""
+
+function power_spectrum(grid_k, dk, Nk, dL)
+
+    Pk = zeros(Nk)
+    Nk = zeros(Nk)
+
+    Nx, Ny, Nz = size(grid_k)
+    kx = 2*pi*rfftfreq(Ny, dL) # Ny is not a bug
+    ky = 2*pi*fftfreq(Ny, dL)
+    kz = 2*pi*fftfreq(Nz, dL)
+
+    for ix in 1:Nx, iy in 1:Ny, iz in 1:Nz
+
+        k = sqrt(kx[ix]^2 + ky[iy]^2 + kz[iz]^2) 
+        ik = ceil(Int, k/dk)
+        if ik <= Nk
+            Pk[ik] += grid_k[ix,iy,iz]
+	    Nk[ik] += 1
+        end
+    end
+
+    Pk = Pk./Nk
+
+end 
