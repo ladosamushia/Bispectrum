@@ -1,3 +1,5 @@
+using FFTW
+
 """
 Make a grid of particle distribution
 
@@ -97,10 +99,9 @@ Parameters:
 Output:
     grid_k: 3D complex array
 """
-
 function grid_k(grid_r)
 
-    rfftw(grid_r)
+    rfft(grid_r)
 
 end
 
@@ -114,21 +115,21 @@ Parameters:
         k-bin spacing
     Nk: int
         number of k bins
-    dL: float
-        grid cell size in real space
+    L: float
+        Size of the original box
 
 Output:
     Pk: Array 
         Power spectrum
 
 """
+function power_spectrum(grid_k, dk, Nkbins, L)
 
-function power_spectrum(grid_k, dk, Nk, dL)
-
-    Pk = zeros(Nk)
-    Nk = zeros(Nk)
+    Pk = zeros(Nkbins)
+    Nk = zeros(Nkbins)
 
     Nx, Ny, Nz = size(grid_k)
+    dL = L/Ny
     kx = 2*pi*rfftfreq(Ny, dL) # Ny is not a bug
     ky = 2*pi*fftfreq(Ny, dL)
     kz = 2*pi*fftfreq(Nz, dL)
@@ -137,12 +138,21 @@ function power_spectrum(grid_k, dk, Nk, dL)
 
         k = sqrt(kx[ix]^2 + ky[iy]^2 + kz[iz]^2) 
         ik = ceil(Int, k/dk)
-        if ik <= Nk
-            Pk[ik] += grid_k[ix,iy,iz]
+        if ik <= Nkbins && ik > 0
+            Pk[ik] += abs2(grid_k[ix,iy,iz])
 	    Nk[ik] += 1
         end
-    end
 
-    Pk = Pk./Nk
+    end
+    println(Nk)
+    Pk = Pk./Nk*L^3/Ny^6
 
 end 
+
+"""
+Compute Bispectru of a Fourier grid.
+
+"""
+function bispectrum(grid_k, dk, Nkbins, L)
+    
+end
