@@ -137,10 +137,10 @@ function power_spectrum(grid_k, dk, Nkbins, L)
     for ix in 1:Nx, iy in 1:Ny, iz in 1:Nz
 
         k = sqrt(kx[ix]^2 + ky[iy]^2 + kz[iz]^2) 
-        ik = ceil(Int, k/dk)
-        if ik <= Nkbins && ik > 0
+        if k > 0 && k <= dk*Nkbins
+            ik = ceil(Int, k/dk)
             Pk[ik] += abs2(grid_k[ix,iy,iz])
-	    Nk[ik] += 1
+            Nk[ik] += 1
         end
 
     end
@@ -150,9 +150,85 @@ function power_spectrum(grid_k, dk, Nkbins, L)
 end 
 
 """
+Pre-compute k1, k2, k3 below k_max and satisfying trinagular condition.
+This needs to only be done once and will speed up the bispectrum computations.
+
+Parameters: 
+    Ngrid: Integer
+        The grid size
+    dL: Float
+        Cell size in real space
+    kmax: Float
+        Maximum k to go to
+
+Output:
+    k_list: Array{9, ?}
+        
+Output is index of k1, index of k2, k1, k2, k3
+"""
+function k_pairs(Ngrid, dL, kmax)
+
+    Nx = Int(Ngrid/2)
+    Ny = Int(Ngrid)
+    Nz = Int(Ngrid)
+
+    kx = 2*pi*rfftfreq(Ngrid, dL) 
+    ky = 2*pi*fftfreq(Ngrid, dL)
+    kz = 2*pi*fftfreq(Ngrid, dL)
+    println(kx)
+    k_list = zeros(9, 1)
+    for ix1 in 1:Nx, iy1 in 1:Ny, iz1 in 1:Nz
+        k1 = sqrt(kx[ix1]^2 + ky[iy1]^2 + kz[iz1]^2)
+        if k1 > kmax
+            continue
+        end
+        for ix2 in 1:Nx, iy2 in 1:Ny, iz2 in 1:Nz
+            k2 = sqrt(kx[ix2]^2 + ky[iy2]^2 + kz[iz2]^2)
+            if k2 > k1
+                continue
+            end
+            k3x = kx[ix1] - kx[ix2];
+            k3y = ky[iy1] - ky[iy2];
+            k3z = kz[iz1] - kz[iz2];
+            k3 = sqrt(k3x^2 + k3y^2 + k3z^2)
+            if k3 > k2 || k1 > k2 + k3
+                continue
+            end 
+            k_list = hcat(k_list, [ix1, iy1, iz1, ix2, iy2, iz2, k1, k2, k3])
+        end
+    end
+    return k_list
+end
+
+"""
 Compute Bispectru of a Fourier grid.
 
 """
 function bispectrum(grid_k, dk, Nkbins, L)
-    
+
+    Nx, Ny, Nz = size(grid_k)
+    dL = L/Ny
+    kx = 2*pi*rfftfreq(Ny, dL) # Ny is not a bug
+    ky = 2*pi*fftfreq(Ny, dL)
+    kz = 2*pi*fftfreq(Nz, dL)
+
+    kmax = dk*Nkbins
+
+    for ix1 in 1:Nx, iy1 in 1:Ny, iz1 in 1:Nz
+        k1 = sqrt(kx[ix1]^2 + ky[iy1]^2 + kz[iz1]^2)
+        if k1 < kmax
+            continue
+        end
+        for ix2 in 1:Nx, iy2 in 1:Ny, iz2 in 1:Nz
+            k2 = sqrt(kx[ix2]^2 + ky[iy2]^2 + kz[iz2]^2)
+            if k2 < kmax || k2 > k1
+                continue
+            end
+            ix3 = ix1 + ix2
+            iy3 = iy1 + iy2
+            iz3 = iz1 + iz2
+            grid_k[ix1,iy1,iz1]*grid_k[ix2,iy2,iz2]*grid_k[ix3,iy3,iz3]
+        end
+    end
+
 end
