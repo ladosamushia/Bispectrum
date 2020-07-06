@@ -166,23 +166,34 @@ Output:
         
 Output is index of k1, index of k2, k1, k2, k3
 """
-function k_pairs(Ngrid, dL, kmax)
+function k_pairs!(Ngrid, kmax, L)
 
     Nx = Int(Ngrid/2)
     Ny = Int(Ngrid)
     Nz = Int(Ngrid)
 
-    kx = 2*pi*rfftfreq(Ngrid, dL) 
-    ky = 2*pi*fftfreq(Ngrid, dL)
-    kz = 2*pi*fftfreq(Ngrid, dL)
-    println(kx)
-    k_list = zeros(9, 1)
-    for ix1 in 1:Nx, iy1 in 1:Ny, iz1 in 1:Nz
+    dL = Ngrid/L
+
+    kx = 2*pi*rfftfreq(Ny, dL) # Ny is not a bug
+    ky = 2*pi*fftfreq(Ny, dL)
+    kz = 2*pi*fftfreq(Nz, dL)
+
+    Nmax = Nx
+    for i in 1:Nx
+        if kx[i] > kmax
+            Nmax = i
+            break
+        end
+    end
+
+    counter = 1
+    yzrange = vcat(1:Nmax, Ngrid-Nmax+1:Ngrid)
+    for ix1 in 1:Nmax, iy1 in yzrange, iz1 in yzrange
         k1 = sqrt(kx[ix1]^2 + ky[iy1]^2 + kz[iz1]^2)
         if k1 > kmax
             continue
         end
-        for ix2 in 1:Nx, iy2 in 1:Ny, iz2 in 1:Nz
+        for ix2 in 1:Nmax, iy2 in yzrange, iz2 in yzrange
             k2 = sqrt(kx[ix2]^2 + ky[iy2]^2 + kz[iz2]^2)
             if k2 > k1
                 continue
@@ -194,10 +205,10 @@ function k_pairs(Ngrid, dL, kmax)
             if k3 > k2 || k1 > k2 + k3
                 continue
             end 
-            k_list = hcat(k_list, [ix1, iy1, iz1, ix2, iy2, iz2, k1, k2, k3])
+            counter += 1
         end
     end
-    return k_list
+    println(counter)
 end
 
 """
