@@ -149,73 +149,28 @@ function power_spectrum(grid_k, dk, Nkbins, L)
 
 end 
 
-"""
-Pre-compute k1, k2, k3 below k_max and satisfying trinagular condition.
-This needs to only be done once and will speed up the bispectrum computations.
+function make_shell!(grid_k, grid_k1, k_grid, kmin, kmax)
 
-Parameters: 
-    Ngrid: Integer
-        The grid size
-    dL: Float
-        Cell size in real space
-    kmax: Float
-        Maximum k to go to
+    Nx, Ny, Nz = size(grid_k)
 
-Output:
-    k_list: Array{9, ?}
-        
-Output is index of k1, index of k2, k1, k2, k3
-"""
-function k_pairs!(Ngrid, kmax, L)
-
-    Nx = Int(Ngrid/2)
-    Ny = Int(Ngrid)
-    Nz = Int(Ngrid)
-
-    dL = Ngrid/L
-
-    kx = 2*pi*rfftfreq(Ny, dL) # Ny is not a bug
-    ky = 2*pi*fftfreq(Ny, dL)
-    kz = 2*pi*fftfreq(Nz, dL)
-
-    Nmax = Nx
-    for i in 1:Nx
-        if kx[i] > kmax
-            Nmax = i
-            break
+    for i in 1:Nx, j in 1:Ny, k in 1:Nz
+        if k_grid[i,j,k] >= kmin && k_grid[i,j,k] < kmax
+            grid_k1[i,j,k] = grid_k[i,j,k]
+        else
+            grid_k1[i,j,k] = 0
         end
     end
 
-    counter = 1
-    yzrange = vcat(1:Nmax, Ngrid-Nmax+1:Ngrid)
-    for ix1 in 1:Nmax, iy1 in yzrange, iz1 in yzrange
-        k1 = sqrt(kx[ix1]^2 + ky[iy1]^2 + kz[iz1]^2)
-        if k1 > kmax
-            continue
-        end
-        for ix2 in 1:Nmax, iy2 in yzrange, iz2 in yzrange
-            k2 = sqrt(kx[ix2]^2 + ky[iy2]^2 + kz[iz2]^2)
-            if k2 > k1
-                continue
-            end
-            k3x = kx[ix1] - kx[ix2];
-            k3y = ky[iy1] - ky[iy2];
-            k3z = kz[iz1] - kz[iz2];
-            k3 = sqrt(k3x^2 + k3y^2 + k3z^2)
-            if k3 > k2 || k1 > k2 + k3
-                continue
-            end 
-            counter += 1
-        end
-    end
-    println(counter)
 end
+        
 
-"""
+"""""
 Compute Bispectru of a Fourier grid.
 
 """
 function bispectrum(grid_k, dk, Nkbins, L)
+
+    kbinedges = range(0, step=dk, length=Nkbins+1)
 
     Nx, Ny, Nz = size(grid_k)
     dL = L/Ny
@@ -223,23 +178,32 @@ function bispectrum(grid_k, dk, Nkbins, L)
     ky = 2*pi*fftfreq(Ny, dL)
     kz = 2*pi*fftfreq(Nz, dL)
 
-    kmax = dk*Nkbins
-
-    for ix1 in 1:Nx, iy1 in 1:Ny, iz1 in 1:Nz
-        k1 = sqrt(kx[ix1]^2 + ky[iy1]^2 + kz[iz1]^2)
-        if k1 < kmax
-            continue
-        end
-        for ix2 in 1:Nx, iy2 in 1:Ny, iz2 in 1:Nz
-            k2 = sqrt(kx[ix2]^2 + ky[iy2]^2 + kz[iz2]^2)
-            if k2 < kmax || k2 > k1
-                continue
-            end
-            ix3 = ix1 + ix2
-            iy3 = iy1 + iy2
-            iz3 = iz1 + iz2
-            grid_k[ix1,iy1,iz1]*grid_k[ix2,iy2,iz2]*grid_k[ix3,iy3,iz3]
-        end
+    k_grid = zeros(size(grid_k))
+    for i in 1:Nx, j in 1:Ny, k in 1:Nz
+        k_grid[i,j,k] = sqrt(kx[i]^2 + ky[j]^2 + kz[k]^2)
     end
 
+    kmax = dk*Nkbins
+
+    grid_k1 = zeros(ComplexF64,size(grid_k))
+    grid_k2 = zeros(ComplexF64,size(grid_k))
+    grid_k3 = zeros(ComplexF64,size(grid_k))
+
+    make_shell!(grid_k, grid_k1, k_grid, kbinedges[1], kbinedges[1+1])
+    grid_r1 = irfft(grid_k1, Ny)
+    make_shell!(grid_k, grid_k2, k_grid, kbinedges[2], kbinedges[2+1])
+    grid_r2 = irfft(grid_k2, Ny)
+    make_shell!(grid_k, grid_k3, k_grid, kbinedges[3], kbinedges[3+1])
+    grid_r3 = irfft(grid_k3, Ny)
+    counter = 1
+    Threads.@threads for i1 in 1:Nkbins
+        println(i1)
+        for i2 in 1:i1
+            for i3 in i1-i2+1:i2
+                sum(grid_r1.*grid_r2.*grid_r3)
+                counter += 1
+            end
+        end
+    end
+    println(counter)
 end
