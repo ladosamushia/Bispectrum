@@ -153,14 +153,15 @@ function make_shell!(grid_k, grid_k1, k_grid, kmin, kmax)
 
     Nx, Ny, Nz = size(grid_k)
 
-    for i in 1:Nx, j in 1:Ny, k in 1:Nz
-        if k_grid[i,j,k] >= kmin && k_grid[i,j,k] < kmax
-            grid_k1[i,j,k] = grid_k[i,j,k]
-        else
-            grid_k1[i,j,k] = 0
+    Threads.@threads for i in 1:Nx 
+        for j in 1:Ny, k in 1:Nz
+            if k_grid[i,j,k] >= kmin && k_grid[i,j,k] < kmax
+                grid_k1[i,j,k] = grid_k[i,j,k]
+            else
+                grid_k1[i,j,k] = 0
+            end
         end
     end
-
 end
         
 
@@ -196,10 +197,10 @@ function bispectrum(grid_k, dk, Nkbins, L)
     make_shell!(grid_k, grid_k3, k_grid, kbinedges[3], kbinedges[3+1])
     grid_r3 = irfft(grid_k3, Ny)
     counter = 1
-    Threads.@threads for i1 in 1:Nkbins
+    for i1 in 1:Nkbins
         println(i1)
         for i2 in 1:i1
-            for i3 in i1-i2+1:i2
+            Threads.@threads for i3 in i1-i2+1:i2
                 sum(grid_r1.*grid_r2.*grid_r3)
                 counter += 1
             end
