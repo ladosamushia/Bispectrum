@@ -153,7 +153,7 @@ function make_shell!(grid_k, grid_k1, k_grid, kmin, kmax)
 
     Nx, Ny, Nz = size(grid_k)
 
-    for i in 1:Nx, j in 1:Ny, k in 1:Nz
+    for i in 1:256, j in 1:512, k in 1:512
         if k_grid[i,j,k] >= kmin && k_grid[i,j,k] < kmax
             grid_k1[i,j,k] = grid_k[i,j,k]
         else
@@ -179,7 +179,7 @@ function bispectrum(grid_k, dk, Nkbins, L)
     kz = 2*pi*fftfreq(Nz, dL)
 
     k_grid = zeros(size(grid_k))
-    for i in 1:Nx, j in 1:Ny, k in 1:Nz
+    for i in 1:256, j in 1:512, k in 1:512
         k_grid[i,j,k] = sqrt(kx[i]^2 + ky[j]^2 + kz[k]^2)
     end
 
