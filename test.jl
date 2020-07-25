@@ -101,167 +101,53 @@ function some_test(N)
     println(n)
 end
 
-function some_function(N,i,n)
-        jmin = floor(Int, sqrt(N^2-i^2+1e-10))
-        for j in -jmin:jmin
-            kmin = floor(Int, sqrt(N^2-i^2-j^2+1e-10))
-            for k in -kmin:kmin
-                l1 = sqrt(i^2+j^2+k^2)
-                if l1 == 0 continue end
-                i2min = -floor(Int, l1+1e-10)
-                i2max = -i2min
-               """ 
-                if i == 0
-                    #
-                elseif i > 0
-                    i2ul = (-l1^2/2 + abs(j)*l1 + abs(k)*l1)/i
-                    if i2ul + 1e-10 > i2max
-                       # 
-                    elseif i2ul + 1e-10 < i2min
-                        continue
-                    else
-                        i2max = ceil(Int, i2ul)
-                    end
-                else
-                    i2ul = (-l1^2/2 + abs(j)*l1 + abs(k)*l1)/i
-                    if i2ul - 1e-10 < i2min
-                        #
-                    elseif i2ul - 1e-10 > i2max
-                        continue
-                    else
-                        i2min = floor(Int, i2ul)
-                    end
-                end               
-               """ 
-                for i2 in i2min:i2max
-                    i3 = -i-i2
-                    j2min = -floor(Int,sqrt(l1^2-i2^2+1e-10))
-                    j2max = -j2min
-                   """ 
-                    if j == 0
-                        #
-                    elseif j > 0
-                        j2ul = (-l1^2/2 - i*i2 + abs(k)*sqrt(l1^2-i2^2+1e-10))/j
-                        if j2ul + 1e-10 > j2max
-                           # 
-                        elseif j2ul + 1e-10 < j2min
-                            continue
-                        else
-                            j2max = ceil(Int, j2ul)
-                        end
-                    else
-                        j2ul = (-l1^2/2 - i*i2 + abs(k)*sqrt(l1^2-i2^2+1e-10))/j
-                        if j2ul - 1e-10 < j2min
-                            #
-                        elseif j2ul - 1e-10 > j2max
-                            continue
-                        else
-                            j2min = floor(Int, j2ul)
-                        end
-                    end
-                   """ 
-                    for j2 in j2min:j2max
-                        j3 = -j-j2
-                        k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2+1e-10))
-                        k2max = -k2min
-                        
-                        k2ul = (-l1^2/2 - i*i2 - j*j2)/k
-                        if k == 0
-                            if (-l1^2/2 - i*i2 - j*j2) + 1e-10 < 0
-                                continue
-                            end
-                        elseif k > 0
-                            if k2ul + 1e-10 > k2max
-                               # 
-                            elseif k2ul + 1e-10 < k2min
-                                continue
-                            else
-                                k2max = ceil(Int, k2ul)
-                            end
-                        else
-                            if k2ul - 1e-10 < k2min
-                                #
-                            elseif k2ul - 1e-10 > k2max
-                                continue
-                            else
-                                k2min = floor(Int, k2ul)
-                            end
-                        end
-                       
-                        for k2 in k2min:k2max
-                            k3 = -k-k2
-                            l2 = sqrt(i2^2+j2^2+k2^2)
-                            l3 = sqrt(i3^2+j3^2+k3^2)
-                            if l2 < l3 continue end
-                            if l2 == 0 continue end
-                            if l3 == 0 continue end
-                            n[i+1] += 1 
-                            #println(i," ",j," ",k," ",i2," ",j2," ",k2," ")
-                        end
-                    end
-                end
-            end
-        end
-end
+
 
 function some_test_2(N)
-    n = zeros(N+1)
-    Threads.@threads for i in 0:N
-        some_function(N,i,n)
-    end
-    println(sum(n))
+n = zeros(N+1)
+Threads.@threads for i in 0:N
+    some_function(N,i,n)
+end
+println(sum(n))
 end
 
 function all_pairs(N)
-    n = 0
-    for i in 0:N
-        jmin = floor(Int, sqrt(N^2-i^2))
-        for j in -jmin:jmin
-            kmin = floor(Int, sqrt(N^2-i^2-j^2))
-            for k in -kmin:kmin
-                if i == 0 && j == 0 && k == 0 continue end
-                l1 = sqrt(i^2+j^2+k^2)
-                i2min = -floor(Int, l1)
-                i2max = -i2min
-                for i2 in i2min:i2max
-                    i3 = -i-i2
-                    j2min = -floor(Int,sqrt(l1^2-i2^2))
-                    j2max = -j2min
-                    for j2 in j2min:j2max
-                        j3 = -j-j2
-                        k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2))
-                        k2max = -k2min
-                        for k2 in k2min:k2max
-                            k3 = -k-k2
-                            l2 = sqrt(i2^2+j2^2+k2^2)
-                            l3 = sqrt(i3^2+j3^2+k3^2)
-                            #if l2 < l3 continue end
-                            if i2 == 0 && j2 == 0 && k2 == 0 continue end
-                            if i3 == 0 && j3 == 0 && k3 == 0 continue end
-                            n += 1
-                            println(i," ",j," ",k," ",i2," ",j2," ",k2," ")
-                        end
+n = 0
+for i in 0:N
+    jmin = floor(Int, sqrt(N^2-i^2))
+    for j in -jmin:jmin
+        kmin = floor(Int, sqrt(N^2-i^2-j^2))
+        for k in -kmin:kmin
+            if i == 0 && j == 0 && k == 0 continue end
+            l1 = sqrt(i^2+j^2+k^2)
+            i2min = -floor(Int, l1)
+            i2max = -i2min
+            for i2 in i2min:i2max
+                i3 = -i-i2
+                j2min = -floor(Int,sqrt(l1^2-i2^2))
+                j2max = -j2min
+                for j2 in j2min:j2max
+                    j3 = -j-j2
+                    k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2))
+                    k2max = -k2min
+                    for k2 in k2min:k2max
+                        k3 = -k-k2
+                        l2 = sqrt(i2^2+j2^2+k2^2)
+                        l3 = sqrt(i3^2+j3^2+k3^2)
+                        #if l2 < l3 continue end
+                        if i2 == 0 && j2 == 0 && k2 == 0 continue end
+                        if i3 == 0 && j3 == 0 && k3 == 0 continue end
+                        n += 1
+                        println(i," ",j," ",k," ",i2," ",j2," ",k2," ")
                     end
                 end
             end
         end
     end
-    println(n)
+end
+println(n)
 end
 
-function some_counts(N)
 
-    n = 0
-    for i in 1:N
-        for j in 1:i
-            for k in 1:j
-                n += 1
-            end
-        end
-    end
-    return n
-end
 
-function tri_index(k1, k2, k3)
-    Int(k1*(k1^2 - 1)/6 + k2*(k2-1)/2 + k3)
-end
+

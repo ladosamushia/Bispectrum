@@ -1,3 +1,5 @@
+include("utilities.jl")
+
 """
     power_spectrum(grid_k, dk, Nkbins, L)
 
@@ -18,10 +20,9 @@ function power_spectrum(grid_k, dk, Nkbins, L)
     Nk = zeros(Nkbins)
 
     Nx, Ny, Nz = size(grid_k)
-    dL = L/Ny
-    kx = 2*pi*rfftfreq(Ny, dL) # Ny is not a bug
-    ky = 2*pi*fftfreq(Ny, dL)
-    kz = 2*pi*fftfreq(Nz, dL)
+
+    kx, ky, kz = Fourier_frequencies(Nz, L)
+
 
     for ix in 1:Nx, iy in 1:Ny, iz in 1:Nz
 
