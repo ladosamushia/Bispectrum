@@ -1,5 +1,3 @@
-
-
 function count(A, Nmax, dk, Nk)
     Nbins = some_counts(Nk)
     cc = zeros(Nbins)
@@ -72,15 +70,15 @@ function some_test(N)
     for i in -N:N
         for j in -N:N
             for k in -N:N
-#            if i == 0 && j == 0 && k == 0 continue end
+            if i == 0 && j == 0 && k == 0 continue end
                 for i2 in -N:N
                     i3 = -i-i2
                     for j2 in -N:N
                         j3 = -j-j2
                         for k2 in -N:N
-#                            if i2 == 0 && j2 == 0 && k2 == 0 continue end
+                            if i2 == 0 && j2 == 0 && k2 == 0 continue end
                             k3 = -k-k2
-#                            if i3 == 0 && j3 == 0 && k3 == 0 continue end
+                            if i3 == 0 && j3 == 0 && k3 == 0 continue end
                             l1 = sqrt(i^2+j^2+k^2)
                             l2 = sqrt(i2^2+j2^2+k2^2)
                             if l1 < l2 continue end
@@ -99,53 +97,47 @@ function some_test(N)
     println(n)
 end
 
-
-
 function some_test_2(N)
-n = zeros(N+1)
-Threads.@threads for i in 0:N
-    some_function(N,i,n)
-end
-println(sum(n))
+    n = zeros(N+1)
+    Threads.@threads for i in 0:N
+        some_function(N,i,n)
+    end
+    println(sum(n))
 end
 
 function all_pairs(N)
-n = 0
-for i in 0:N
-    jmin = floor(Int, sqrt(N^2-i^2))
-    for j in -jmin:jmin
-        kmin = floor(Int, sqrt(N^2-i^2-j^2))
-        for k in -kmin:kmin
-            if i == 0 && j == 0 && k == 0 continue end
-            l1 = sqrt(i^2+j^2+k^2)
-            i2min = -floor(Int, l1)
-            i2max = -i2min
-            for i2 in i2min:i2max
-                i3 = -i-i2
-                j2min = -floor(Int,sqrt(l1^2-i2^2))
-                j2max = -j2min
-                for j2 in j2min:j2max
-                    j3 = -j-j2
-                    k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2))
-                    k2max = -k2min
-                    for k2 in k2min:k2max
-                        k3 = -k-k2
-                        l2 = sqrt(i2^2+j2^2+k2^2)
-                        l3 = sqrt(i3^2+j3^2+k3^2)
-                        #if l2 < l3 continue end
-                        if i2 == 0 && j2 == 0 && k2 == 0 continue end
-                        if i3 == 0 && j3 == 0 && k3 == 0 continue end
-                        n += 1
-                        println(i," ",j," ",k," ",i2," ",j2," ",k2," ")
+    n = 0
+    for i in 0:N
+        jmin = floor(Int, sqrt(N^2-i^2))
+        for j in -jmin:jmin
+            kmin = floor(Int, sqrt(N^2-i^2-j^2))
+            for k in -kmin:kmin
+                if i == 0 && j == 0 && k == 0 continue end
+                l1 = sqrt(i^2+j^2+k^2)
+                i2min = -floor(Int, l1)
+                i2max = -i2min
+                for i2 in i2min:i2max
+                    i3 = -i-i2
+                    j2min = -floor(Int,sqrt(l1^2-i2^2))
+                    j2max = -j2min
+                    for j2 in j2min:j2max
+                        j3 = -j-j2
+                        k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2))
+                        k2max = -k2min
+                        for k2 in k2min:k2max
+                            k3 = -k-k2
+                            l2 = sqrt(i2^2+j2^2+k2^2)
+                            l3 = sqrt(i3^2+j3^2+k3^2)
+                            #if l2 < l3 continue end
+                            if i2 == 0 && j2 == 0 && k2 == 0 continue end
+                            if i3 == 0 && j3 == 0 && k3 == 0 continue end
+                            n += 1
+                            println(i," ",j," ",k," ",i2," ",j2," ",k2," ")
+                        end
                     end
                 end
             end
         end
     end
+    println(n)
 end
-println(n)
-end
-
-
-
-
