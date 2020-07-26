@@ -102,4 +102,3 @@ function grid_k(grid_r)
     rfft(grid_r)
 
 end
-
