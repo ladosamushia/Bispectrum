@@ -31,7 +31,11 @@ function bispectrum(grid_k, dk, N, L, kmax)
     Nmax = floor(Int, kmax/(kx[2] - kx[1]))
 
     @threads for i in 1:Nmax
-        loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, threadid)
+
+        loop_over_k1k2!(Nmax, Nk, i, Bk, grid_k, threadid, dk)
+
     end
+
+    Bk ./= Nk
 
 end 

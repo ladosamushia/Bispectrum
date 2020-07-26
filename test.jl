@@ -1,6 +1,4 @@
-function wrap_index(i, N)
-    return i < 0 ? Int(N + i + 1) : Int(i + 1)
-end
+
 
 function count(A, Nmax, dk, Nk)
     Nbins = some_counts(Nk)

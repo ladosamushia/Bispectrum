@@ -46,13 +46,22 @@ function tri_index(l1, l2, l3, dk)
 
 end
 
-function loop_over_k1k2!(N, i, Nk, Bk, grid_k, tid, dk)
+function wrap_index(index, N)
+    for i in 1:length(index)
+        index[i] = i < -1 ? Int(N + i + 1) : Int(i + 1)
+    end
+    return index
+end
 
-    jmin = floor(Int, sqrt(N^2-i^2+1e-10))
+function loop_over_k1k2!(Nmax, Nk, i, Bk, grid_k, tid, dk)
+
+    Ngrid = size(grid_k)[3]
+    
+    jmin = floor(Int, sqrt(Nmax^2-i^2+1e-10))
     
     for j in -jmin:jmin
     
-        kmin = floor(Int, sqrt(N^2-i^2-j^2+1e-10))
+        kmin = floor(Int, sqrt(Nmax^2-i^2-j^2+1e-10))
     
         for k in -kmin:kmin
     
@@ -86,6 +95,8 @@ function loop_over_k1k2!(N, i, Nk, Bk, grid_k, tid, dk)
 
                         i123 = tri_index(l1, l2, l3, dk)
 
+                        i, i2, j, j2, k, k2 = wrap_index([i, i2, j, j2, k, k2], Ngrid)
+                        
                         Nk[tid, i123] += 1 
                         Bk[tid, i123] += 1
 
