@@ -101,11 +101,11 @@ end
     - `Bk::array{Int,Nkbin+1}`: Binned bispectrum
     - `grid_k::array{Complex,3}`: delta_k
     - `tid::Int`: threadid
-    - `dk::Float`: Bin width
+    - `dk::Float`: Bin width in units of fundamental frequency
 
     Modifies Bk, Nk, arrays.
 """
-function loop_over_k1k2!(Nmax, i, Nk,Bk, grid_k, tid, dk)
+function loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, tid, dk)
 
     Ngrid = size(grid_k)[3]
     
@@ -127,9 +127,8 @@ function loop_over_k1k2!(Nmax, i, Nk,Bk, grid_k, tid, dk)
                 i3 = -i-i2
                 j2min = -floor(Int,sqrt(l1^2-i2^2+1e-10))
                 j2max = -j2min
-    
+
                 for j2 in j2min:j2max
-    
                     j3 = -j-j2
                     k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2+1e-10))
                     k2max = -k2min
@@ -147,10 +146,14 @@ function loop_over_k1k2!(Nmax, i, Nk,Bk, grid_k, tid, dk)
 
                         i123 = tri_index(l1, l2, l3, dk)
 
-                        i, i2, j, j2, k, k2 = wrap_index([i, i2, j, j2, k, k2], Ngrid)
+                        i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = wrap_index([i, i2, i3, j, j2, j3, k, k2, k3], Ngrid)
                         
+                        Bk_tmp = grid_k[i1n, j1n, k1n]
+                        if i2n < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
+                        if i3n < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
+
                         Nk[tid, i123] += 1 
-                        Bk[tid, i123] += 1
+                        Bk[tid, i123] += real(Bk_tmp)
 
                      end
 
@@ -162,4 +165,4 @@ function loop_over_k1k2!(Nmax, i, Nk,Bk, grid_k, tid, dk)
 
     end
 
-end
+end 

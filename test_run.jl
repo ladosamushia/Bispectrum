@@ -5,4 +5,5 @@ dk = 0.02
 N = 10
 L = 1000
 kmax = 0.2
-bispectrum(grid_k, dk, N, L, kmax)
+Bk = bispectrum(grid_k, dk, N, L, kmax)
+println(Bk)
