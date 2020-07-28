@@ -16,11 +16,9 @@ using FFTW
 """
 
 function Fourier_frequencies(N, L)
-    dL = L/N
-
-    kx = 2*pi*rfftfreq(N, dL)
-    ky = 2*pi*fftfreq(N, dL)
-    kz = 2*pi*fftfreq(N, dL)
+    kx = 2*pi*rfftfreq(N, N/L)
+    ky = 2*pi*fftfreq(N, N/L)
+    kz = 2*pi*fftfreq(N, N/L)
 
     return kx, ky, kz
 end

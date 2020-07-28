@@ -67,7 +67,7 @@ function tri_index(l1, l2, l3, dk)
     k2 = floor(Int, l2/dk)
     k3 = floor(Int, l3/dk)
 
-    ceil(Int, k1*(k1^2 - 1)/6 + k2*(k2 - 1)/2 + k3)
+    ceil(Int, k1*(k1^2 - 1)/6 + k2*(k2 - 1)/2 + k3 + 1)
 end
 
 """ 

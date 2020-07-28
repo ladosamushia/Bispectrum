@@ -32,6 +32,5 @@ function power_spectrum(grid_k, dk, Nkbins, L)
         end       
     end
 
-    println(Nk)
-    Pk = Pk./Nk*L^3/Ny^6
+    Pk = Pk ./ Nk * (L / Nz)^3 / Nz^3
 end 

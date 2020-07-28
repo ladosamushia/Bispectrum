@@ -25,15 +25,15 @@ function bispectrum(grid_k, dk, N, L, kmax)
 
     Nx, Ny, Nz = size(grid_k)
 
-
     kx, ky, kz = Fourier_frequencies(Nz, L)
     k_fundamental = kx[2] - kx[1]
     Nmax = floor(Int, kmax / k_fundamental)
-
+    
     @threads for i in 1:Nmax
         loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
     end
-    println(Bk)
-    println(Nk)
-    Bk = Bk ./ Nk #* L^6 / Nz^9
+
+    Bk = Bk ./ Nk * (L / Nz)^6 / Nz^3
+    Bk = sum(Bk, dims=1)
+
 end 
