@@ -6,7 +6,7 @@
 function bispectrum_bins(N)
 
     # k1 >= k2 >= k3 and N bins in k1
-    N*(N + 1)*(N + 2)/6
+    Int(N*(N + 1)*(N + 2)/6)
 
 end
 
@@ -134,7 +134,7 @@ function loop_over_k1k2!(Nmax, i, Nk,Bk, grid_k, tid, dk)
                     k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2+1e-10))
                     k2max = -k2min
                     
-                    k2min, k2max = set_k2minmax(k2min, k2max, l1, i, j, k, i2, j2)
+                    k2min, k2max = set_k2_min_max(k2min, k2max, l1, i, j, k, i2, j2)
                    
                     for k2 in k2min:k2max
 

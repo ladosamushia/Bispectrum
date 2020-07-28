@@ -1,3 +1,5 @@
+using FFTW
+
 """
     Fourier_frequencies(N, L)
 
@@ -14,7 +16,7 @@
 """
 
 function Fourier_frequencies(N, L)
-    dL = L/Ny
+    dL = L/N
 
     kx = 2*pi*rfftfreq(N, dL)
     ky = 2*pi*fftfreq(N, dL)
