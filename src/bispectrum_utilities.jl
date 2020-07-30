@@ -63,11 +63,11 @@ end
     - `dk::float1: bin size
 """
 function tri_index(l1, l2, l3, dk)
-    k1 = floor(Int, l1/dk)
-    k2 = floor(Int, l2/dk)
-    k3 = floor(Int, l3/dk)
+    k1 = ceil(Int, l1/dk)
+    k2 = ceil(Int, l2/dk)
+    k3 = ceil(Int, l3/dk)
 
-    ceil(Int, k1*(k1^2 - 1)/6 + k2*(k2 - 1)/2 + k3 + 1)
+    ceil(Int, k1*(k1^2 - 1)/6 + k2*(k2 - 1)/2 + k3)
 end
 
 function wrap_index(index, N)
