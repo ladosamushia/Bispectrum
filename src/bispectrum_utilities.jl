@@ -70,6 +70,10 @@ function tri_index(l1, l2, l3, dk)
     ceil(Int, k1*(k1^2 - 1)/6 + k2*(k2 - 1)/2 + k3 + 1)
 end
 
+function wrap_index(index, N)
+    index <= -1 ? Int(N + index + 1) : Int(index + 1)
+end
+
 """ 
     wrap_index(index, N)
 
@@ -82,11 +86,17 @@ end
     # Output
     - `index::Int`: Same index but in fftfreq order.
 """
-function wrap_index(index, N)
-    for i in 1:length(index)
-        index[i] = i < -1 ? Int(N + i + 1) : Int(i + 1)
-    end
-    return index
+function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
+    i2n = abs(i2) + 1
+    i3n = abs(i3) + 1
+    j1n = wrap_index(j1, N)
+    j2n = wrap_index(j2, N)
+    j3n = wrap_index(j3, N)
+    k1n = wrap_index(k1, N)
+    k2n = wrap_index(k2, N)
+    k3n = wrap_index(k3, N)
+
+    return i1, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n
 end
 
 """
@@ -146,7 +156,7 @@ function loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, tid, dk)
 
                         i123 = tri_index(l1, l2, l3, dk)
 
-                        i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = wrap_index([i, i2, i3, j, j2, j3, k, k2, k3], Ngrid)
+                        i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = get_indeces(i, i2, i3, j, j2, j3, k, k2, k3, Ngrid)
                         
                         Bk_tmp = grid_k[i1n, j1n, k1n]
                         if i2n < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
