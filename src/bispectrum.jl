@@ -33,7 +33,5 @@ function bispectrum(grid_k, dk, N, L, kmax)
         loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
     end
 
-    Bk = Bk ./ Nk * (L / Nz)^6 / Nz^3
-    Bk = sum(Bk, dims=1)
-
+    Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
 end 
