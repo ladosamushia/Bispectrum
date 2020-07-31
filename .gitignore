@@ -2,3 +2,5 @@ test_shell.npy
 
 test_2.jl
 .vscode/launch.json
+src/bispectrum_utilities.jl.19.mem
+src/bispectrum.jl.19.mem
