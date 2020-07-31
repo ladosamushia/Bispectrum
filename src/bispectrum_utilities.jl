@@ -159,8 +159,8 @@ function loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, tid, dk)
                         i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = get_indeces(i, i2, i3, j, j2, j3, k, k2, k3, Ngrid)
                         
                         Bk_tmp = grid_k[i1n, j1n, k1n]
-                        if i2n < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
-                        if i3n < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
+                        if i2 < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
+                        if i3 < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
 
                         Nk[tid, i123] += 1 
                         Bk[tid, i123] += real(Bk_tmp)
