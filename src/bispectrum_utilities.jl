@@ -87,6 +87,7 @@ end
     - `index::Int`: Same index but in fftfreq order.
 """
 function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
+    i1n = i1 + 1
     i2n = abs(i2) + 1
     i3n = abs(i3) + 1
     j1n = wrap_index(j1, N)
@@ -96,7 +97,7 @@ function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
     k2n = wrap_index(k2, N)
     k3n = wrap_index(k3, N)
 
-    return i1, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n
+    return i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n
 end
 
 """
