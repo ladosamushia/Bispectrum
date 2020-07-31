@@ -1,4 +1,5 @@
 using Base.Threads
+using DelimitedFiles
 
 include("utilities.jl")
 include("bispectrum_utilities.jl")
@@ -33,7 +34,30 @@ function bispectrum(grid_k, dk, N, L, kmax)
         loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
     end
 
-    Bk = Bk ./ Nk * (L / Nz)^6 / Nz^3
-    Bk = sum(Bk, dims=1)
-
+    Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
 end 
+
+"""
+    write_bispectrum(Bk, dk, N, ofile)
+
+    Write bispectrum and k triplet to a file.
+
+    # Parameters
+    - `Bk::Array{Float}`: Bispectrum.
+    - `dk::Float`: Bin width.
+    - `N::Float`: Number of k bins.
+    - `ofile::string`: Output file name.
+"""
+function write_bispectrum(Bk, dk, N, ofile)
+    kbin = collect(range(dk/2, length=N, step=dk))
+    output = zeros(bispectrum_bins(N), 4)
+    for i in 1:N
+        for j in 1:i
+            for k in 1:j
+                B_index = tri_index(i, j, k, 1)
+                output[B_index, :] = [kbin[i], kbin[j], kbin[k], Bk[B_index]]
+            end
+        end
+    end
+    writedlm(ofile, output)
+end
