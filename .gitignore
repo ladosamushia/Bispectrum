@@ -2,5 +2,9 @@ test_shell.npy
 
 test_2.jl
 .vscode/launch.json
+<<<<<<< HEAD
+test_output.txt
+=======
 src/bispectrum_utilities.jl.19.mem
 src/bispectrum.jl.19.mem
+>>>>>>> 5c877bd03b157cec485002333d763ecd64c0b988
