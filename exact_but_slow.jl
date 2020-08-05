@@ -36,7 +36,7 @@ function loop_over_k1k2_exact(kx, ky, kz, Nmax, Ngrid, i1, tid, grid_k)
         ky1 = ky[j1]
         for k1 in flatten((1:Nmax, Ngrid - Nmax + 1:Ngrid))
             kz1 = kz[k1]
-            l1 = sqrt(kx1^2 + ky1^2 + kz1^2) \
+            l1 = sqrt(kx1^2 + ky1^2 + kz1^2) 
             if l1 > kmax continue end
             for i2 in flatten((1:Nmax, Ngrid - Nmax + 1:Ngrid))
                 kx2 = kx[i2]
