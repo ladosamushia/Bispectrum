@@ -18,7 +18,9 @@ function bispectrum_exact(grid_k, dk, L, kmax)
     Nmax = floor(Int, kmax / (kx[2] - kx[1]))
 
     N = ceil(Int, kmax / dk)
+    println(kmax," ",kx[2]-kx[1]," ",Nmax)
     Nbin = bispectrum_bins(N)
+    println(Nbin)
     Bk = zeros(nthreads(), Nbin)
     Nk = zeros(nthreads(), Nbin)
 
@@ -52,6 +54,7 @@ function loop_over_k1k2_exact(kx, ky, kz, Nmax, Ngrid, i1, tid, grid_k, Nk, Bk)
                         l3 = sqrt(kx3^2 + ky3^2 + kz3^2)
                         if l3 > l2 || l3 == 0 continue end
                         i123 = tri_index(l1, l2, l3, dk)
+                        println(l1," ",l2," ",l3," ",dk," ",i123)
                         Nk[tid, i123] += 1
 
                         i2n, i3, j3, k3 = k3_indeces(i1, i2, j1, j2, k1, k2, Ngrid)
