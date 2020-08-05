@@ -24,7 +24,7 @@ function bispectrum_exact(grid_k, dk, L, kmax)
             loop_over_k1k2_exact(kx, ky, kz, Nmax, kmax, dk, Ngrid, i, threadid(), grid_k, Nk, Bk)
         end
     end
-    return sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
+    return sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Ngird)^6 / Ngrid^3
 end
 
 function loop_over_k1k2_exact(kx, ky, kz, Nmax, kmax, dk, Ngrid, i1, tid, grid_k, Nk, Bk)
