@@ -40,7 +40,7 @@ end
 function write_powerspectrum(pk, dk, outfile)
     k = dk/2
     for p in pk 
-        writedlm(outfile, [k pk])
+        writedlm(outfile, [k p])
         k += dk
     end
 end 
