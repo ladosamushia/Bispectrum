@@ -15,7 +15,7 @@ function bispectrum_exact(grid_k, dk, L, kmax)
 
     kx, ky, kz = Fourier_frequencies(Ngrid, L)
     kx = copy(ky)
-    Nmax = ceil(Int, kmax / (kx[2] - kx[1]))
+    Nmax = floor(Int, kmax / (kx[2] - kx[1]))
 
     N = ceil(Int, kmax / dk)
     Nbin = bispectrum_bins(N)
