@@ -59,7 +59,7 @@ function loop_over_k1k2_exact(kx, ky, kz, Nmax, Ngrid, i1, tid, grid_k, Nk, Bk)
                         Bk_tmp = grid_k[i1, j1, k1]
                         if kx2 < 0 Bk_tmp *= conj(grid_k[i2, j2, k2]) else Bk_tmp *= grid_k[i2, j2, k2] end
                         if kx3 < 0 Bk_tmp *= conj(grid_k[i3, j3, k3]) else Bk_tmp *= grid_k[i3, j3, k3] end
-                        Bk[tid, i123] += Bk_tmp
+                        Bk[tid, i123] += real(Bk_tmp)
                     end
                 end
             end
