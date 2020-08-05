@@ -5,11 +5,6 @@ using Base.Iterators
 include("src/bispectrum_utilities.jl")
 include("src/utilities.jl")
 
-Ngrid = 512
-L = 1000
-dk = 0.01
-kmax = 0.1
-
 function bispectrum_exact(grid_k, dk, L, kmax)
     Ngrid = size(grid_k)[3]
 
@@ -26,13 +21,13 @@ function bispectrum_exact(grid_k, dk, L, kmax)
 
     for i1 in 1:Nmax
         @threads for i in 1:Nmax
-            loop_over_k1k2_exact(kx, ky, kz, Nmax, Ngrid, i, threadid(), grid_k, Nk, Bk)
+            loop_over_k1k2_exact(kx, ky, kz, Nmax, kmax, Ngrid, i, threadid(), grid_k, Nk, Bk)
         end
     end
     return sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
 end
 
-function loop_over_k1k2_exact(kx, ky, kz, Nmax, Ngrid, i1, tid, grid_k, Nk, Bk)
+function loop_over_k1k2_exact(kx, ky, kz, Nmax, kmax, Ngrid, i1, tid, grid_k, Nk, Bk)
     kx1 = kx[i1]
     for j1 in flatten((1:Nmax, Ngrid - Nmax + 1:Ngrid))
         ky1 = ky[j1]
