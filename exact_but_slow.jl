@@ -1,5 +1,6 @@
 using FFTW
 using Base.Threads
+using Base.Iterators
 
 include("src/bispectrum_utilities.jl")
 include("src/utilities.jl")
@@ -11,7 +12,7 @@ kmax = 0.1
 
 function bispectrum_exact(grid_k, dk, L, kmax)
     Ngrid = size(grid_k)[3]
-    
+
     kx, ky, kz = Fourier_frequencies(Ngrid, L)
     kx = copy(ky)
     Nmax = ceil(Int, kmax / (kx[2] - kx[1]))
