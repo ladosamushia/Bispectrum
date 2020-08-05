@@ -54,10 +54,10 @@ function loop_over_k1k2_exact(kx, ky, kz, Nmax, Ngrid, i1, tid, grid_k, Nk, Bk)
                         i123 = tri_index(l1, l2, l3, dk)
                         Nk[tid, i123] += 1
 
-                        i3, j3, k3 = k3_indeces(i1, i2, j1, j2, k1, k2, Ngrid)
+                        i2n, i3, j3, k3 = k3_indeces(i1, i2, j1, j2, k1, k2, Ngrid)
                         
                         Bk_tmp = grid_k[i1, j1, k1]
-                        if kx2 < 0 Bk_tmp *= conj(grid_k[i2, j2, k2]) else Bk_tmp *= grid_k[i2, j2, k2] end
+                        if kx2 < 0 Bk_tmp *= conj(grid_k[i2n, j2, k2]) else Bk_tmp *= grid_k[i2n, j2, k2] end
                         if kx3 < 0 Bk_tmp *= conj(grid_k[i3, j3, k3]) else Bk_tmp *= grid_k[i3, j3, k3] end
                         Bk[tid, i123] += real(Bk_tmp)
                     end
@@ -82,5 +82,7 @@ function k3_indeces(i1, i2, j1, j2, k1, k2, Ngrid)
     j3n = wrap_index(j3, Ngrid)
     k3n = wrap_index(k3, Ngrid)
 
-    return i3n, j3n, k3n
+    i2n = abs(i2) + 1
+
+    return i2n, i3n, j3n, k3n
 end
