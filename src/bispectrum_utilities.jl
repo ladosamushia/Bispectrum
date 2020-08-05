@@ -74,6 +74,10 @@ function wrap_index(index, N)
     index <= -1 ? Int(N + index + 1) : Int(index + 1)
 end
 
+function unwrap_index(index, N)
+    index > div(N, 2) ? Int(index - N - 1) : Int(index - 1)
+end
+
 """ 
     wrap_index(index, N)
 
