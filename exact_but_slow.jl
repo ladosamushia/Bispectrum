@@ -82,7 +82,7 @@ function k3_indeces(i1, i2, j1, j2, k1, k2, Ngrid)
     j3n = wrap_index(j3, Ngrid)
     k3n = wrap_index(k3, Ngrid)
 
-    i2n = abs(i2) + 1
+    i2n = abs(i2n) + 1
 
     return i2n, i3n, j3n, k3n
 end
