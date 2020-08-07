@@ -1,3 +1,5 @@
+using DelimitedFiles
+
 include("utilities.jl")
 
 """
@@ -33,4 +35,12 @@ function power_spectrum(grid_k, dk, Nkbins, L)
     end
 
     Pk = Pk ./ Nk * (L / Nz)^3 / Nz^3
+end 
+
+function write_powerspectrum(pk, dk, outfile)
+    k = dk/2
+    for p in pk 
+        writedlm(outfile, [k p])
+        k += dk
+    end
 end 
