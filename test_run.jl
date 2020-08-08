@@ -1,5 +1,7 @@
 include("src/bispectrum_utilities.jl")
 include("src/powerspectrum.jl")
+include("src/bispectrum.jl")
+include("test.jl")
 
 grid_k = randn(ComplexF32, (33, 64, 64))
 dk = 0.01
