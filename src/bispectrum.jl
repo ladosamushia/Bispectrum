@@ -34,7 +34,7 @@ function bispectrum(grid_k, dk, N, L, kmax)
     end
 
     Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
-    return Bk, sum(Nk, dims=1)
+    return Bk
 end 
 
 """

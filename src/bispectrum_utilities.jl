@@ -94,6 +94,9 @@ function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
     i1n = i1 + 1
     i2n = abs(i2) + 1
     i3n = abs(i3) + 1
+    if i1 < 0 j1 = - j1; k1 = - k1 end
+    if i2 < 0 j2 = - j2; k2 = - k2 end
+    if i3 < 0 j3 = - j3; k3 = - k3 end
     j1n = wrap_index(j1, N)
     j2n = wrap_index(j2, N)
     j3n = wrap_index(j3, N)
