@@ -39,10 +39,11 @@ end
 
 function write_powerspectrum(pk, dk, outfile)
     k = dk/2
-    ofile = open(outfile, "a")
-    for p in pk 
-        writedlm(outfile, [k p])
+    N = size(pk)[1]
+    pkk = zeros(N, 2)
+    for i in 1:N 
+        pkk[i,:] = [k pk[i]]
         k += dk
     end
-    close(ofile)
+    writedlm(outfile, pkk)
 end 
