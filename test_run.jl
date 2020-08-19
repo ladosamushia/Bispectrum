@@ -10,3 +10,4 @@ L = 1000
 kmax = 0.1
 Bk = bispectrum(grid_k, dk, 20, L, kmax)
 #write_powerspectrum(Pk, dk, "test.txt")
+Pk = power_spectrum(grid_k, dk, N, L)
