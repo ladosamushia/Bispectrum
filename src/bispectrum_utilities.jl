@@ -94,15 +94,15 @@ function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
     i1n = i1 + 1
     i2n = abs(i2) + 1
     i3n = abs(i3) + 1
-    if i1 < 0 j1n = - j1; k1n = - k1 end
-    if i2 < 0 j2n = - j2; k2n = - k2 end
-    if i3 < 0 j3n = - j3; k3n = - k3 end
-    j1n = wrap_index(j1n, N)
-    j2n = wrap_index(j2n, N)
-    j3n = wrap_index(j3n, N)
-    k1n = wrap_index(k1n, N)
-    k2n = wrap_index(k2n, N)
-    k3n = wrap_index(k3n, N)
+    if i1 < 0 j1 = - j1; k1 = - k1 end
+    if i2 < 0 j2 = - j2; k2 = - k2 end
+    if i3 < 0 j3 = - j3; k3 = - k3 end
+    j1n = wrap_index(j1, N)
+    j2n = wrap_index(j2, N)
+    j3n = wrap_index(j3, N)
+    k1n = wrap_index(k1, N)
+    k2n = wrap_index(k2, N)
+    k3n = wrap_index(k3, N)
 
     return i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n
 end
