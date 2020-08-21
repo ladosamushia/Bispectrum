@@ -1,7 +1,7 @@
 using Test
 
 include("../src/bispectrum.jl")
-
+include("../exact_bispectrum.jl")
 Ngrid = 64
 
 grid_k = ones(div(Ngrid, 2) + 1, Ngrid, Ngrid)
@@ -14,20 +14,29 @@ Bk = bispectrum(grid_k, dk, N, L, kmax)
 
 for B in Bk
     if isnan(B) == false
-        @test B == 1 * (1000 / Ngrid)^6 / Ngrid^3
+        @test B == 1 * (L / Ngrid)^6 / Ngrid^3
     end
 end
 
-grid_k = zeros(ComplexF32, div(Ngrid, 2) + 1, Ngrid, Ngrid)
-
-grid_k[1 + 1, 4 + 1, 2 + 1] = 1 + 2im
-grid_k[3 + 1, -2 + Ngrid + 1, 3 + 1] = 2 - 3im
-grid_k[2 + 1, -2 + Ngrid + 1, -5 + Ngrid + 1] = 1 - 1im
-
+grid_k = rand(div(Ngrid, 2) + 1, Ngrid, Ngrid)
 Bk = bispectrum(grid_k, dk, N, L, kmax)
+Bk_exact = exact_bispectrum(grid_k, dk, N, L, kmax)
+"""
 for i in 1:length(Bk)
     if isnan(Bk[i])
         Bk[i] = 0
     end
+    if isnan(Bk_exact[i])
+        Bk_exact[i] = 0
+    end
 end
-@test sum(Bk) == real((1 + 2im)*(2 + 3im)*(1 - 1im)) * (1000 / Ngrid)^6 / Ngrid^3
+"""
+
+
+
+for i in 1:length(Bk)
+    if Bk[i] != Bk_exact[i]
+        println(i," ",Bk[i]," ",Bk_exact[i])
+    end
+    #@test Bk[i] == Bk_exact[i]
+end

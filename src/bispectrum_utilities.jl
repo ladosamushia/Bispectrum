@@ -79,16 +79,17 @@ function unwrap_index(index, N)
 end
 
 """ 
-    wrap_index(index, N)
+    wrap_index(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
 
-    Go from k-index to its position in the fftfreq order.
+    Go from k-indeces for k1, k2, k3 to their position in the fftfreq order.
+    Invert the vectors if kx < 0.
 
     # Parameters
-    - `index::array`: Array of indexes
+    - `i1, i2, ... ::Int`: Indeces
     - `N::Int`: Grid size
 
     # Output
-    - `index::Int`: Same index but in fftfreq order.
+    - `i1n, i2n, ...::Int`: Same indes but in fftfreq order.
 """
 function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
     i1n = i1 + 1
