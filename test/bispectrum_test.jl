@@ -10,7 +10,7 @@ N = 10
 L = 1000
 kmax = 0.1
 
-Bk = bispectrum(grid_k, dk, N, L, kmax)
+Bk, Nk = bispectrum(grid_k, dk, N, L, kmax)
 
 for B in Bk
     if isnan(B) == false
@@ -18,25 +18,12 @@ for B in Bk
     end
 end
 
-grid_k = rand(div(Ngrid, 2) + 1, Ngrid, Ngrid)
-Bk = bispectrum(grid_k, dk, N, L, kmax)
-Bk_exact = exact_bispectrum(grid_k, dk, N, L, kmax)
-"""
-for i in 1:length(Bk)
-    if isnan(Bk[i])
-        Bk[i] = 0
-    end
-    if isnan(Bk_exact[i])
-        Bk_exact[i] = 0
-    end
-end
-"""
-
-
+grid_k = rand(ComplexF32, div(Ngrid, 2) + 1, Ngrid, Ngrid)
+Bk, Nk = bispectrum(grid_k, dk, N, L, kmax)
+Bk_exact, Nk_exact = exact_bispectrum(grid_k, dk, N, L, kmax)
 
 for i in 1:length(Bk)
-    if Bk[i] != Bk_exact[i]
-        println(i," ",Bk[i]," ",Bk_exact[i])
+    if isnan(Bk[i]) == false
+        @test Bk[i] == Bk_exact[i]
     end
-    #@test Bk[i] == Bk_exact[i]
 end
