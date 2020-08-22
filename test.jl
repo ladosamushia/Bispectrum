@@ -1,4 +1,5 @@
 include("src/bispectrum.jl")
+include("src/powerspectrum.jl")
 include("exact_bispectrum.jl")
 
 Ngrid = 64
@@ -11,3 +12,5 @@ kmax = 0.1
 
 Bk, Nk = bispectrum(grid_k, dk, N, L, kmax)
 write_bispectrum(Bk, dk, N, "test.txt")
+Pk = power_spectrum(grid_k, dk, N, L)
+write_powerspectrum(Pk, dk, "test_pk.txt")

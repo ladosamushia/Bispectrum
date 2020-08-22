@@ -45,9 +45,12 @@ function loop_over_kykz!(Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, tid)
 end
 
 function write_powerspectrum(pk, dk, outfile)
+    f = open(outfile, "a")
     k = dk/2
-    for p in pk 
-        writedlm(outfile, [k p])
+    for p in pk
+        println(k," ",p)
+        writedlm(f, [k p])
         k += dk
     end
+    close(f)
 end 
