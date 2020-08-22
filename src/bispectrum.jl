@@ -51,13 +51,10 @@ end
 function write_bispectrum(Bk, dk, N, ofile)
     kbin = collect(range(dk/2, length=N, step=dk))
     output = zeros(bispectrum_bins(N), 4)
-    for i in 1:N
-        for j in 1:i
-            for k in 1:j
-                B_index = tri_index(i, j, k, 1)
-                output[B_index, :] = [kbin[i], kbin[j], kbin[k], Bk[B_index]]
-            end
-        end
+    f = open(ofile, "a")
+    for i in 1:N, j in ceil(Int, i/2):i, k in i-j:j
+        B_index = tri_index(i, j, k, 1)
+        writedlm(f, [kbin[i] kbin[j] kbin[k] Bk[B_index]])
     end
-    writedlm(ofile, output)
+    close(ofile)
 end
