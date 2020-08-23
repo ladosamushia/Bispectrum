@@ -24,6 +24,6 @@ Bk_exact, Nk_exact = exact_bispectrum(grid_k, dk, N, L, kmax)
 
 for i in 1:length(Bk)
     if isnan(Bk[i]) == false
-        @test Bk[i] == Bk_exact[i]
+        @test isapprox(Bk[i], Bk_exact[i])
     end
 end
