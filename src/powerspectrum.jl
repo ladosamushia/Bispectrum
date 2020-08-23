@@ -26,13 +26,13 @@ function power_spectrum(grid_k, dk, Nkbins, L)
     kx, ky, kz = Fourier_frequencies(Nz, L)
 
     @threads for ix in 1:Nx
-        loop_over_kykz!(Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, threadid())    
+        loop_over_kykz!(grid_k, Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, threadid())    
     end
 
     Pk = sum(Pk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^3 / Nz^3
 end 
 
-function loop_over_kykz!(Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, tid)
+function loop_over_kykz!(grid_k, Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, tid)
     for iy in 1:Ny, iz in 1:Nz
         k = sqrt(kx[ix]^2 + ky[iy]^2 + kz[iz]^2) 
 
