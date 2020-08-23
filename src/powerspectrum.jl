@@ -45,12 +45,11 @@ function loop_over_kykz!(grid_k, Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, tid
 end
 
 function write_powerspectrum(pk, dk, outfile)
+    f = open(outfile, "a")
     k = dk/2
-    N = size(pk)[1]
-    pkk = zeros(N, 2)
-    for i in 1:N 
-        pkk[i,:] = [k pk[i]]
+    for p in pk
+        writedlm(f, [k p])
         k += dk
     end
-    writedlm(outfile, pkk)
+    close(f)
 end 

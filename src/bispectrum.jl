@@ -28,13 +28,13 @@ function bispectrum(grid_k, dk, N, L, kmax)
     kx, ky, kz = Fourier_frequencies(Nz, L)
     k_fundamental = kx[2] - kx[1]
     Nmax = floor(Int, kmax / k_fundamental)
-    println(dk," ",k_fundamental," ",Nmax)
-    @threads for i in 1:Nmax
-        loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
+
+    @threads for i in 0:Nmax
+        loop_over_k1k2!(Nmax, kmax, k_fundamental, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
     end
 
     Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
-    return Bk
+    return Bk, sum(Nk, dims=1)
 end 
 
 """
@@ -50,14 +50,10 @@ end
 """
 function write_bispectrum(Bk, dk, N, ofile)
     kbin = collect(range(dk/2, length=N, step=dk))
-    output = zeros(bispectrum_bins(N), 4)
-    for i in 1:N
-        for j in 1:i
-            for k in 1:j
-                B_index = tri_index(i, j, k, 1)
-                output[B_index, :] = [kbin[i], kbin[j], kbin[k], Bk[B_index]]
-            end
-        end
+    f = open(ofile, "a")
+    for i in 1:N, j in ceil(Int, i/2):i, k in max(1,i-j):j
+        B_index = tri_index(i, j, k, 1)
+        writedlm(f, [kbin[i] kbin[j] kbin[k] Bk[B_index]])
     end
-    writedlm(ofile, output)
+    close(f)
 end

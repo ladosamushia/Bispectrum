@@ -79,16 +79,17 @@ function unwrap_index(index, N)
 end
 
 """ 
-    wrap_index(index, N)
+    wrap_index(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
 
-    Go from k-index to its position in the fftfreq order.
+    Go from k-indeces for k1, k2, k3 to their position in the fftfreq order.
+    Invert the vectors if kx < 0.
 
     # Parameters
-    - `index::array`: Array of indexes
+    - `i1, i2, ... ::Int`: Indeces
     - `N::Int`: Grid size
 
     # Output
-    - `index::Int`: Same index but in fftfreq order.
+    - `i1n, i2n, ...::Int`: Same indes but in fftfreq order.
 """
 function get_indeces(i1, i2, i3, j1, j2, j3, k1, k2, k3, N)
     i1n = i1 + 1
@@ -123,44 +124,40 @@ end
 
     Modifies Bk, Nk, arrays.
 """
-function loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, tid, dk)
-
+function loop_over_k1k2!(Nmax, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, dk)
     Ngrid = size(grid_k)[3]
     
-    jmin = floor(Int, sqrt(Nmax^2-i^2+1e-10))
+    jmin = floor(Int, sqrt(kmax^2 / k_fundamental^2 - i^2))
     
     for j in -jmin:jmin
-    
-        kmin = floor(Int, sqrt(Nmax^2-i^2-j^2+1e-10))
+        kmin = floor(Int, sqrt(kmax^2 / k_fundamental^2 - i^2 - j^2))
     
         for k in -kmin:kmin
-    
-            l1 = sqrt(i^2+j^2+k^2)
+            l1 = sqrt(i^2 + j^2 + k^2)
             if l1 == 0 continue end
-            i2min = -floor(Int, l1+1e-10)
+            i2min = -floor(Int, l1)
             i2max = -i2min
     
             for i2 in i2min:i2max
-    
-                i3 = -i-i2
-                j2min = -floor(Int,sqrt(l1^2-i2^2+1e-10))
+                i3 = -i - i2
+                j2min = - Nmax
+                j2min = -floor(Int, sqrt(l1^2 - i2^2 + eps(Float32)))
                 j2max = -j2min
 
                 for j2 in j2min:j2max
-                    j3 = -j-j2
-                    k2min = -floor(Int, sqrt(l1^2-i2^2-j2^2+1e-10))
+                    j3 = -j - j2
+                    k2min = -Nmax
+                    k2min = -floor(Int, sqrt(l1^2 - i2^2 - j2^2 + eps(Float32)))
                     k2max = -k2min
                     
                     k2min, k2max = set_k2_min_max(k2min, k2max, l1, i, j, k, i2, j2)
                    
                     for k2 in k2min:k2max
-
                         k3 = -k-k2
-                        l2 = sqrt(i2^2+j2^2+k2^2)
+                        l2 = sqrt(i2^2 + j2^2 + k2^2)
                         if l2 == 0 continue end
-                        l3 = sqrt(i3^2+j3^2+k3^2) 
-                        if l3 == 0 continue end
-                        if l2 < l3 continue end
+                        l3 = sqrt(i3^2 + j3^2 + k3^2) 
+                        if l3 > l2 || l3 == 0 continue end
 
                         i123 = tri_index(l1, l2, l3, dk)
 
@@ -174,13 +171,8 @@ function loop_over_k1k2!(Nmax, i, Nk, Bk, grid_k, tid, dk)
                         Bk[tid, i123] += real(Bk_tmp)
 
                      end
-
                 end
-
             end
-
         end
-
     end
-
 end 
