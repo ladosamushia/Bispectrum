@@ -1,7 +1,7 @@
 using Test
 
 include("../src/bispectrum.jl")
-include("../exact_bispectrum.jl")
+include("exact_bispectrum.jl")
 Ngrid = 64
 
 grid_k = ones(div(Ngrid, 2) + 1, Ngrid, Ngrid)
