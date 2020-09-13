@@ -27,3 +27,13 @@ function compute_pk_bk(x, y, z, dk, N, L, outfile)
     pk = power_spectrum(gk, dk, N, L)
     write_powerspectrum(pk, dk, pk_outfile)
 end
+
+function compute_pk_only(x, y, z, dk, N, L, outfile)
+    gr = grid_r(512, x, y, z)
+    gk = grid_k(gr)
+
+    pk_outfile = string("pk_", outfile)
+    pk = power_spectrum(gk, dk, N, L)
+    write_powerspectrum(pk, dk, pk_outfile)
+end
+
