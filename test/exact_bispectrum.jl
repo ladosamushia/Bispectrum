@@ -1,4 +1,4 @@
-include("src/bispectrum_utilities.jl")
+include("../src/bispectrum_utilities.jl")
 
 function exact_bispectrum(grid_k, dk, N, L, kmax)
     Nbins = bispectrum_bins(N)
