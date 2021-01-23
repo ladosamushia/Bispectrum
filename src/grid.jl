@@ -13,17 +13,17 @@ include("../src/utilities.jl")
 """
 function Weight(s, order)
     if order == 1
-        if s < 1
-            return 1
+        if s < 1.0
+            return 1.0
         else
-            return 0
+            return 0.0
         end
     end
     if order == 2
         if s < 0.5
-            return 1 - s
+            return 1.0 - s
         else
-            return 0
+            return 0.0
         end
     end
     if order == 3
@@ -32,18 +32,19 @@ function Weight(s, order)
         elseif s < 1.5
             return 0.5*(1.5 - s)^2
         else
-            return 0
+            return 0.0
         end
     end
     if order == 4
-        if s < 1
-            return 1/6*(4 - 6*s^2 + 3*s^3)
-        elseif s < 2
-            return 1/6*(2 - s)^3
+        if s < 1.0
+            return 1.0/6.0*(4.0 - 6.0*s^2 + 3.0*s^3)
+        elseif s < 2.0
+            return 1.0/6.0*(2.0 - s)^3
         else
-            return 0
+            return 0.0
         end
     end
+    return 0.0
 end
 
 
