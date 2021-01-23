@@ -22,3 +22,43 @@ function Fourier_frequencies(N, L)
 
     return kx, ky, kz
 end
+
+"""
+    wrap_grid(i, Ngrid)
+
+    Make sure index does not go outside 1 - Ngrid (periodic cube).
+
+    # Arguments:
+    - `i::Int`: index.
+    - `Ngrid::Int`: size of the grid.
+
+    # Output:
+    - `i::Int`: New index wrapped if necessary. Always between 1 - Ngrid.
+"""
+function wrap_grid(i, Ngrid)
+    if i < 1
+        i += Ngrid
+    elseif i > Ngrid
+        i -= Ngrid
+    end
+    return i
+end
+
+"""
+    distance_to_grid(x, dL, index)
+
+    Return distance to grid point indexed by index. Wraps around periodic cubes properly.
+
+    # Arguments:
+    - `x:float`: coordinate of a point
+    - `dL::float`: grid size
+    - `index::Int`: index of the grid point (dL*index distance away from the origin)
+    - `Ngrid::Int`: grid size
+"""
+function distance_to_grid(x, dL, index, Ngrid)
+    s = abs(x - (dL*index - dL/2))/dL
+    if s > Ngrid/2
+        s -= Ngrid/2
+    end
+    return s
+end

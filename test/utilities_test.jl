@@ -9,3 +9,7 @@ kx3, ky3, kz3 = Fourier_frequencies(100,1)
 @test isapprox(kx1[2], 2*π)
 @test kx2[2] > kx1[2]
 @test kx3[end] > kx1[end]
+
+@test wrap_grid(-1, 256) == 255
+@test wrap_grid(257, 256) == 1
+@test wrap_grid(120, 256) == 120
