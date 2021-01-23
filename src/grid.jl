@@ -1,60 +1,51 @@
 using FFTW
 
-"""
-1st order grid assignment
-"""
-function grid_1st(grid, Ngrid, x, y, z, dx, dy, dz, index_x, index_y, index_z)
-    return 0
-end
+include("../src/utilities.jl")
 
 """
-3rd order grid assignment
+    Weight(s, order)
+
+    Assign weight to nearby grid points based on distance.
+
+    # Arguments
+    - `s::float`: distance to the grid point in units of grid size.
+    - `order::Int`: order of interpolation. can be 1 through 4.
 """
-function grid_3rd!(grid, Ngrid, x, y, z, dx, dy, dz, index_x, index_y, index_z)
-    # Only fill in immediate neighbours
-    for step_x = -2:1, step_y = -2:1, step_z = -2:1
-
-        i_x = index_x + step_x
-        i_y = index_y + step_y
-        i_z = index_z + step_z
-        # Enforce periodicity. Stay inside the box.
-        if i_x < 1
-            i_x = Ngrid
-        end
-        if i_x > Ngrid
-            i_x = 1
-        end
-        if i_y < 1
-            i_y = Ngrid
-        end
-        if i_y > Ngrid
-            i_y = 1
-        end
-        if i_z < 1
-            i_z = Ngrid
-        end
-        if i_z > Ngrid
-            i_z = 1
-        end
-
-        dist_x = x - i_x*dx
-        dist_y = y - i_y*dy
-        dist_z = z - i_z*dz
-
-        s = sqrt(dist_x^2 + dist_y^2 + dist_z^2)/dx
-
-        if s > 2
-            weight = 0
-        elseif s < 1
-            weight = (4 - 6*s^2 + 3*s^3)/6
+function Weight(s, order)
+    if order == 1
+        if s < 1
+            return 1
         else
-            weight = (2 - s)^3/6
+            return 0
         end
-
-        grid[i_x, i_y, i_z] += weight
-
+    end
+    if order == 2
+        if s < 0.5
+            return 1 - s
+        else
+            return 0
+        end
+    end
+    if order == 3
+        if s < 0.5
+            return 0.75 - s^2
+        elseif s < 1.5
+            return 0.5*(1.5 - s)^2
+        else
+            return 0
+        end
+    end
+    if order == 4
+        if s < 1
+            return 1/6*(4 - 6*s^2 + 3*s^3)
+        elseif s < 2
+            return 1/6*(2 - s)^3
+        else
+            return 0
+        end
     end
 end
+
 
 """
     grid_r(Ngrid, x, y, z)
@@ -63,11 +54,15 @@ end
 
     # Arguments
     - `Ngrid::Int`: number of grid cells.
+    - `x::float`: x coordinate.
+    - `y::float`: y coordinate.
+    - `z::float`: z coordinate.
+    - `order::Int`: assignment order. can be 1 through 4.
 
     # Output
     - `grid::array{3}`: number of particles in each grid cell.
 """
-function grid_r(Ngrid, x, y, z)
+function grid_r(Ngrid, x, y, z, order)
 
     xmax = maximum(x)
     xmin = minimum(x)
@@ -92,7 +87,25 @@ function grid_r(Ngrid, x, y, z)
         index_y = ceil(Int, y[i]/dy)
         index_z = ceil(Int, z[i]/dz)
 
-        grid_3rd!(grid, Ngrid, x[i], y[i], z[i], dx, dy, dz, index_x, index_y, index_z)
+        for j in -2:2
+            ix = index_x + j
+            ix = wrap_grid(ix, Ngrid)
+            sx = distance_to_grid(x[i], dx, ix, Ngrid)
+            Wx = Weight(sx, order)
+            for k in -2:2
+                iy = index_y + k
+                iy = wrap_grid(iy, Ngrid)
+                sy = distance_to_grid(y[i], dy, iy, Ngrid)
+                Wy = Weight(sy, order)
+                for l in -2:2
+                    iz = index_z + l
+                    iz = wrap_grid(iz, Ngrid)
+                    sz = distance_to_grid(z[i], dz, iz, Ngrid)
+                    Wz = Weight(sz, order)
+                    grid[ix, iy, iz] += Wx*Wy*Wz
+                end
+            end
+        end
 
     end
 
