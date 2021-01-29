@@ -109,7 +109,7 @@ function grid_r(Ngrid, x, y, z, order)
         for j in 1:5
             for k in 1:5
                 for l in 1:5
-                    grid[ix[i], iy[j], iz[k]] += Wx[i]*Wy[j]*Wz[k]
+                    grid[ix[j], iy[k], iz[l]] += Wx[j]*Wy[k]*Wz[l]
                 end
             end
         end
