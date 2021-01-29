@@ -87,27 +87,32 @@ function grid_r(Ngrid, x, y, z, order)
         index_x = ceil(Int, x[i]/dx)
         index_y = ceil(Int, y[i]/dy)
         index_z = ceil(Int, z[i]/dz)
-
+        
+        Wx = zeros(5)
+        Wy = zeros(5)
+        Wz = zeros(5)
+        ix = zeros(Int, 5)
+        iy = zeros(Int, 5)
+        iz = zeros(Int, 5)
         for j in -2:2
-            ix = index_x + j
-            ix = wrap_grid(ix, Ngrid)
-            sx = distance_to_grid(x[i], dx, ix, Ngrid)
-            Wx = Weight(sx, order)
-            for k in -2:2
-                iy = index_y + k
-                iy = wrap_grid(iy, Ngrid)
-                sy = distance_to_grid(y[i], dy, iy, Ngrid)
-                Wy = Weight(sy, order)
-                for l in -2:2
-                    iz = index_z + l
-                    iz = wrap_grid(iz, Ngrid)
-                    sz = distance_to_grid(z[i], dz, iz, Ngrid)
-                    Wz = Weight(sz, order)
-                    grid[ix, iy, iz] += Wx*Wy*Wz
+            ix[j+3] = wrap_grid(index_x + j, Ngrid)
+            s = distance_to_grid(x[i], dx, ix[j+3], Ngrid)
+            Wx[j+3] = Weight(s, order)
+            iy[j+3] = wrap_grid(index_y + j, Ngrid)
+            s = distance_to_grid(y[i], dy, iy[j+3], Ngrid)
+            Wy[j+3] = Weight(s, order)
+            iz[j+3] = wrap_grid(index_z + j, Ngrid)
+            s = distance_to_grid(z[i], dz, iz[j+3], Ngrid)
+            Wz[j+3] = Weight(s, order)
+        end
+
+        for j in 1:5
+            for k in 1:5
+                for l in 1:5
+                    grid[ix[i], iy[j], iz[k]] += Wx[i]*Wy[j]*Wz[k]
                 end
             end
         end
-
     end
 
     return grid
