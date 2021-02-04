@@ -30,7 +30,7 @@ function bispectrum(grid_k, dk, N, L, kmin, kmax)
     Nmax = floor(Int, kmax / k_fundamental)
     println(Nmax, " ", k_fundamental, " ", kmin, " ", kmax, " ", dk)
     @threads for i in 0:Nmax
-        loop_over_k1k2!(Nmax, kmin / k_fundamental, kmax, k_fundamental, threadid(), Nk, Bk, grid_k, 1, dk / k_fundamental)
+        loop_over_k1k2!(Nmax, kmin / k_fundamental, kmax, k_fundamental, threadid(), Nk, Bk, grid_k, i, dk / k_fundamental)
     end
 
     Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
@@ -48,7 +48,7 @@ end
     - `N::Float`: Number of k bins.
     - `ofile::string`: Output file name.
 """
-function write_bispectrum(Bk, dk, N, ofile)
+function write_bispectrum(Bk, dk, kmin, N, ofile)
     kbin = collect(range(dk/2, length=N, step=dk))
     f = open(ofile, "a")
     for i in 1:N, j in ceil(Int, i/2):i, k in max(1,i-j):j
