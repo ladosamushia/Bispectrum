@@ -19,7 +19,7 @@ include("bispectrum_utilities.jl")
     # Output
     - `Bk::Array{float}`: Binned bispectrum.
 """
-function bispectrum(grid_k, dk, N, L, kmax)
+function bispectrum(grid_k, dk, N, L, kmin, kmax)
     Nbins = bispectrum_bins(N)
     Bk = zeros(nthreads(), Nbins)
     Nk = zeros(nthreads(), Nbins)
@@ -28,9 +28,9 @@ function bispectrum(grid_k, dk, N, L, kmax)
     kx, ky, kz = Fourier_frequencies(Nz, L)
     k_fundamental = kx[2] - kx[1]
     Nmax = floor(Int, kmax / k_fundamental)
-
+    println(Nmax, " ", k_fundamental, " ", kmin, " ", kmax, " ", dk)
     @threads for i in 0:Nmax
-        loop_over_k1k2!(Nmax, kmax, k_fundamental, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
+        loop_over_k1k2!(Nmax, kmin / k_fundamental, kmax, k_fundamental, threadid(), Nk, Bk, grid_k, 1, dk / k_fundamental)
     end
 
     Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
