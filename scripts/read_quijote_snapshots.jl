@@ -1,3 +1,5 @@
+using PyCall
+
 py""" 
 import imp
 readsnap = imp.load_source('readsnap', './readsnap.py')
