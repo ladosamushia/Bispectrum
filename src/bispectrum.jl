@@ -32,7 +32,7 @@ function bispectrum(grid_k, dk, N, L, kmin, kmax)
     @threads for i in 0:Nmax
         loop_over_k1k2!(Nmax, kmin / k_fundamental, kmax, k_fundamental, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
     end
-
+   
     Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L / Nz)^6 / Nz^3
     return Bk
 end 
@@ -51,9 +51,9 @@ end
 function write_bispectrum(Bk, dk, kmin, N, ofile)
     kbin = collect(range(kmin + dk/2, length=N, step=dk))
     f = open(ofile, "w")
-    for i in 1:N, j in 1:i, k in 1:j
-        if kbin[i] <= kbin[j] + kbin[k]
-            writedlm(f, [kbin[i] kbin[j] kbin[k] Bk[1, i, j, k]])
+    for i in 1:N, j in i:N, k in j:N
+        if k < j + i
+            writedlm(f, [kbin[i] kbin[j] kbin[k] Bk[1, k, j, i]])
         end
     end
     close(f)
