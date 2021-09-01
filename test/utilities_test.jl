@@ -13,3 +13,7 @@ kx3, ky3, kz3 = Fourier_frequencies(100,1)
 @test wrap_grid(-1, 256) == 255
 @test wrap_grid(257, 256) == 1
 @test wrap_grid(120, 256) == 120
+
+@test wrap_L(5, 10) == 5
+@test wrap_L(-1.9, 100) == 98.1
+@test wrap_L(1409, 1000) == 409

@@ -45,6 +45,28 @@ function wrap_grid(i, Ngrid)
 end
 
 """
+    wrap_L(x, L)
+
+    Make sure x is between 0 and L
+
+    # Arguments:
+    - `x::float`: coordinate
+    - `L::float`: grid size
+
+    # Output:
+    - `xnew::float`: New coordinate brought inside 0 - L interval
+"""
+function wrap_L(x, L)
+    xnew = x
+    if x < 0
+        xnew = L + x
+    elseif x > L
+        xnew = x - L
+    end
+    return xnew
+end
+
+"""
     distance_to_grid(x, dL, index)
 
     Return distance to grid point indexed by index. Wraps around periodic cubes properly.
