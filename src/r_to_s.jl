@@ -9,7 +9,7 @@ include("utilities.jl")
     - `z::Array{float}`: real-space coordinate
     - `vz::Array{float}`: redshift-space coordinate
     - `a::float`: the scale factor
-    - `H::float`: Hubble parameter at that redshift in units of h
+    - `H::float`: Hubble parameter at that redshift in units of 100*h
     - `L::float`: Size of the simulation
 """
 

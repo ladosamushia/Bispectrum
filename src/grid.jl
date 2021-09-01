@@ -49,7 +49,7 @@ end
 
 
 """
-    grid_r(Ngrid, x, y, z)
+    grid_r(Ngrid, x, y, z, order)
 
     Make a grid of particle distribution.
 
