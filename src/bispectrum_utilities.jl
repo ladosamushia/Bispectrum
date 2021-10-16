@@ -62,10 +62,10 @@ end
     - `l1,l2,l3::float`: lengths of k1, k2, k3
     - `dk::float1: bin size
 """
-function tri_index(l1, l2, l3, dk)
-    k1 = ceil(Int, l1/dk)
-    k2 = ceil(Int, l2/dk)
-    k3 = ceil(Int, l3/dk)
+function tri_index(l1, l2, l3, dk, kmin)
+    k1 = ceil(Int, (l1 - kmin)/dk)
+    k2 = ceil(Int, (l2 - kmin)/dk)
+    k3 = ceil(Int, (l3 - kmin)/dk)
 
     ceil(Int, k1*(k1^2 - 1)/6 + k2*(k2 - 1)/2 + k3)
 end
@@ -124,17 +124,17 @@ end
 
     Modifies Bk, Nk, arrays.
 """
-function loop_over_k1k2!(Nmax, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, dk)
+function loop_over_k1k2!(Nmax, k0, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, dk)
     Ngrid = size(grid_k)[3]
     
-    jmin = floor(Int, sqrt(kmax^2 / k_fundamental^2 - i^2))
+    jmin = floor(Int, sqrt(kmax^2 / k_fundamental^2 - i^2 + 1e-6))
     
     for j in -jmin:jmin
-        kmin = floor(Int, sqrt(kmax^2 / k_fundamental^2 - i^2 - j^2))
+        kmin = floor(Int, sqrt(kmax^2 / k_fundamental^2 - i^2 - j^2 + 1e-6))
     
         for k in -kmin:kmin
             l1 = sqrt(i^2 + j^2 + k^2)
-            if l1 == 0 continue end
+            if l1 <= k0 continue end
             i2min = -floor(Int, l1)
             i2max = -i2min
     
@@ -155,11 +155,13 @@ function loop_over_k1k2!(Nmax, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, dk)
                     for k2 in k2min:k2max
                         k3 = -k-k2
                         l2 = sqrt(i2^2 + j2^2 + k2^2)
-                        if l2 == 0 continue end
+                        if l2 <= k0 continue end
                         l3 = sqrt(i3^2 + j3^2 + k3^2) 
-                        if l3 > l2 || l3 == 0 continue end
+                        if l3 > l2 || l3 <= k0 continue end
 
-                        i123 = tri_index(l1, l2, l3, dk)
+                        ind1 = ceil(Int, (l1 - k0)/dk)
+                        ind2 = ceil(Int, (l2 - k0)/dk)
+                        ind3 = ceil(Int, (l3 - k0)/dk)
 
                         i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = get_indeces(i, i2, i3, j, j2, j3, k, k2, k3, Ngrid)
                         
@@ -167,8 +169,8 @@ function loop_over_k1k2!(Nmax, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, dk)
                         if i2 < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
                         if i3 < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
 
-                        Nk[tid, i123] += 1 
-                        Bk[tid, i123] += real(Bk_tmp)
+                        Nk[tid, ind1, ind2, ind3] += 1 
+                        Bk[tid, ind1, ind2, ind3] += real(Bk_tmp)
 
                      end
                 end

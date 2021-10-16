@@ -5,11 +5,11 @@ include("../src/bispectrum_utilities.jl")
 @test bispectrum_bins(2) == 4
 @test bispectrum_bins(3) == 10
 
-counter = 1
-for i in 1:3, j in 1:i, k in 1:j
-    @test tri_index(i, j, k, 1) == counter
-    global counter += 1
-end
+#counter = 1
+#for i in 1:3, j in 1:i, k in 1:j
+#    @test tri_index(i, j, k, 1, 0) == counter
+#    global counter += 1
+#end
 
 #set_k2_min_max(k2min, k2max, l1, i, j, k, i2, j2)
 

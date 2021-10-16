@@ -10,3 +10,5 @@ src/bispectrum.jl.19.mem
 >>>>>>> 5c877bd03b157cec485002333d763ecd64c0b988
 .vscode/settings.json
 test.jl
+test.bk.out
+hector.dat
