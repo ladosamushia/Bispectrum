@@ -169,8 +169,11 @@ function loop_over_k1k2!(Nmax, k0, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, 
                         if i2 < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
                         if i3 < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
 
+                        mu = k/l1
                         Nk[tid, ind1, ind2, ind3] += 1 
-                        Bk[tid, ind1, ind2, ind3] += real(Bk_tmp)
+                        Bk[tid, ind1, ind2, ind3, 1] += real(Bk_tmp)
+                        Bk[tid, ind1, ind2, ind3, 2] += real(Bk_temp)*(1 - mu^2)/2
+                        Bk[tid, ind1, ind2, ind3, 3] += real(Bk_temp)*(3 - 30*mu^2 + 35*mu^4)/8
 
                      end
                 end
