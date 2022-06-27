@@ -8,7 +8,7 @@ function read_molino(filename)
     molinoveloffset = read(molinofile["vel_offset"])
     x = molinopos[1,:]
     y = molinopos[2,:]
-    z = molinopos[3,:] + molinoveloffset[3,:]/2997.92458
+    z = molinopos[3,:] + molinoveloffset[3,:]
     return x, y, z
 end
 
