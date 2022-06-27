@@ -5,7 +5,7 @@ include("utilities.jl")
 include("bispectrum_utilities.jl")
 
 """
-    bispectrum(grid_k, dk, N, L, kmax)
+    bispectrum(grid_k, dk, N, L, kmin, kmax)
 
     Compute bispectrum.
 
@@ -14,6 +14,7 @@ include("bispectrum_utilities.jl")
     - `dk::float`: k-bin spacing.
     - `N::Int`: number of k bins.
     - `L:float`: Size of the original box.
+    - `kmin:float`: Smallest k value to look at.
     - `kmax:float`: Largest k value to look at.
 
     # Output

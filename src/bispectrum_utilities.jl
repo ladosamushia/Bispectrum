@@ -172,8 +172,8 @@ function loop_over_k1k2!(Nmax, k0, kmax, k_fundamental, i, Nk, Bk, grid_k, tid, 
                         mu = k/l1
                         Nk[tid, ind1, ind2, ind3] += 1 
                         Bk[tid, ind1, ind2, ind3, 1] += real(Bk_tmp)
-                        Bk[tid, ind1, ind2, ind3, 2] += real(Bk_temp)*(1 - mu^2)/2
-                        Bk[tid, ind1, ind2, ind3, 3] += real(Bk_temp)*(3 - 30*mu^2 + 35*mu^4)/8
+                        Bk[tid, ind1, ind2, ind3, 2] += real(Bk_tmp)*(1 - mu^2)/2
+                        Bk[tid, ind1, ind2, ind3, 3] += real(Bk_tmp)*(3 - 30*mu^2 + 35*mu^4)/8
 
                      end
                 end
