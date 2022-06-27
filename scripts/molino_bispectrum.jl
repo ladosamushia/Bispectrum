@@ -1,13 +1,14 @@
 using HDF5
-using("compute_bispectrum.jl")
+
+include("./compute_bispectrum.jl")
 
 function read_molino(filename)
     molinofile = h5open(filename)
     molinopos = read(molinofile["pos"])
-    molinovel = read(molinofile["vel"])
+    molinoveloffset = read(molinofile["vel_offset"])
     x = molinopos[1,:]
     y = molinopos[2,:]
-    z = molinopos[3,:] + molinovel[3,:]/2997.92458
+    z = molinopos[3,:] + molinoveloffset[3,:]/2997.92458
     return x, y, z
 end
 
