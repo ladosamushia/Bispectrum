@@ -54,7 +54,7 @@ function write_bispectrum(Bk, dk, kmin, N, ofile)
     f = open(ofile, "w")
     for i in 1:N, j in i:N, k in j:N
         if k < j + i
-            writedlm(f, [kbin[i] kbin[j] kbin[k] Bk[1, k, j, i, 1] Bk[1, k, j, i, 3] Bk[1, k, j, i, 3]])
+            writedlm(f, [kbin[i] kbin[j] kbin[k] Bk[1, k, j, i, 1] Bk[1, k, j, i, 2] Bk[1, k, j, i, 3]])
         end
     end
     close(f)
