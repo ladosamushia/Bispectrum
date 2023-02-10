@@ -1,4 +1,5 @@
 using Test
+using Random
 
 include("../src/grid.jl")
 
@@ -53,3 +54,16 @@ for i in 2:6
     end
 end
 @test gk[1, 1, 1] == 1000
+
+Npart = 100000
+x = rand(Npart)*1000
+y = rand(Npart)*1000
+z = rand(Npart)*1000
+gr = grid_r(512, x, y, z, 1)
+@test isapprox(sum(gr), Npart)
+gr = grid_r(512, x, y, z, 2)
+@test isapprox(sum(gr), Npart)
+gr = grid_r(512, x, y, z, 3)
+@test isapprox(sum(gr), Npart)
+gr = grid_r(512, x, y, z, 4)
+@test isapprox(sum(gr), Npart)
