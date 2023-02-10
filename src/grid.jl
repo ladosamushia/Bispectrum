@@ -113,7 +113,7 @@ function grid_r(Ngrid, x, y, z, order)
         end
     end
 
-    return grid
+    return grid/sum(grid)
 
 end
 
