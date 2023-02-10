@@ -29,7 +29,7 @@ function power_spectrum(grid_k, dk, Nkbins, L)
         loop_over_kykz!(grid_k, Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, threadid())    
     end
 
-    Pk = sum(Pk, dims=1) ./ sum(Nk, dims=1) *L^3
+    Pk = sum(Pk, dims=1) ./ sum(Nk, dims=1) *L^3/Nz^3
 end 
 
 function loop_over_kykz!(grid_k, Pk, Nk, Nkbins, Ny, Nz, kx, ky, kz, dk, ix, tid)
