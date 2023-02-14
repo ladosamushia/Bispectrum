@@ -10,7 +10,7 @@ function read_Abacus(dirname, fnamebeg)
     y = nothing
     z = nothing
     for filename in readdir(dirname)
-        if filename[end-4:end] == ".fits" & filename[1:length(fnamebeg)] ==
+        if filename[end-4:end] == ".fits" && filename[1:length(fnamebeg)] ==
 fnamebeg
             println(filename)
             f = FITS(string(dirname, filename))
