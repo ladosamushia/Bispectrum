@@ -80,7 +80,7 @@ end
 function distance_to_grid(x, dL, index, Ngrid)
     s = abs(x - (dL*index - dL/2))/dL
     if s > Ngrid/2
-        s -= Ngrid/2
+        s = Ngrid - s
     end
     return s
 end

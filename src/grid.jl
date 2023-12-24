@@ -13,16 +13,16 @@ include("../src/utilities.jl")
 """
 function Weight(s, order)
     if order == 1
-        if s < 1.0
+        if s <= 0.5
             return 1.0
         else
             return 0.0
         end
     end
     if order == 2
-        if s < 0.5
+        if s <= 1.0
             return 1.0 - s
-        else
+        else 
             return 0.0
         end
     end
@@ -106,16 +106,14 @@ function grid_r(Ngrid, x, y, z, order)
             Wz[j+3] = Weight(s, order)
         end
 
-        for j in 1:5
-            for k in 1:5
-                for l in 1:5
-                    grid[ix[j], iy[k], iz[l]] += Wx[j]*Wy[k]*Wz[l]
-                end
-            end
+        test_sum = 0.0
+        for j in 1:5, k in 1:5, l in 1:5
+            grid[ix[j], iy[k], iz[l]] += Wx[j]*Wy[k]*Wz[l]
+            test_sum += Wx[j]*Wy[k]*Wz[l]
         end
     end
 
-    return grid
+    return grid/sum(grid)*Ngrid^3 .- 1
 
 end
 

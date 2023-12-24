@@ -22,7 +22,7 @@ gk = rand(ComplexF32, div(Ngrid, 2) + 1, Ngrid, Ngrid)
 Bk, Nk = bispectrum(gk, dk, N, L, 0, kmax)
 Bk_exact, Nk_exact = exact_bispectrum(gk, dk, N, L, 0, kmax)
 
-for i in 1:length(Bk)
+for i in eachindex(Bk)
     if isnan(Bk[i]) == false
         @test isapprox(Bk[i], Bk_exact[i])
     end
@@ -37,7 +37,7 @@ kmax = kmin + dk*N
 Bk, Nk = bispectrum(gk, dk, N, L, kmin, kmax)
 Bk_exact, Nk_exact = exact_bispectrum(gk, dk, N, L, kmin, kmax)
 
-for i in 1:length(Bk)
+for i in eachindex(Bk)
     if isnan(Bk[i]) == false
         @test isapprox(Bk[i], Bk_exact[i])
     end
