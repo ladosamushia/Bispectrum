@@ -20,18 +20,34 @@ include("bispectrum_utilities.jl")
     # Output
     - `Bk::Array{float}`: Binned bispectrum.
 """
-function bispectrum(grid_k, dk, N, L, kmin, kmax)
-    #Nbins = bispectrum_bins(N)
-    Bk = zeros(nthreads(), N, N, N, 3)
-    Nk = zeros(nthreads(), N, N, N)
-    Nx, Ny, Nz = size(grid_k)
+function bispectrum(grid_k, N, L, klen, kmu)
+    # k1 and k2 can not be longer than this
+    maxk12 = ceil(Int, sqrt(3)*N)
+    # k3 can not be longer than this 
+    maxk3 = ceil(Int, 2*sqrt(3)*N)
+    Bk = zeros(nthreads(), maxk12, maxk12, maxk3, 3)
+    Nk = zeros(nthreads(), maxk12, maxk12, maxk3)
 
-    kx, ky, kz = Fourier_frequencies(Nz, L)
-    k_fundamental = kx[2] - kx[1]
-    Nmax = floor(Int, kmax / k_fundamental)
-    println(Nmax, " ", k_fundamental, " ", kmin, " ", kmax, " ", dk)
-    @threads for i in 0:Nmax
-        loop_over_k1k2!(Nmax, kmin / k_fundamental, kmax, k_fundamental, i, Nk, Bk, grid_k, threadid(), dk / k_fundamental)
+    # kxy coordinates change from -N to N including 0 (2N+1 total)
+    # kz coordinate chagnes from 0 to N (N+1) total
+    # Julia indexing starts with 0 (0 -> 1, N -> N+1)
+    kxyrange = 1:2*N+1
+    kzrange = 1:N+1
+    @threads for k12xyz in iterators.product(kxyrange,kxyrange,kzrange,kxyrange,kxyrange,kzrange)
+        k1x, k1y, k1z, k2x, k2y, k2z = k12xyz
+        tid = threadid()
+        k3x = k1x + k2x
+        k3y = k1y + k2y
+        k3z = k1z + k2z
+        @inbounds i1 = klen[k1x,k1y,k1z]
+        @inbounds i2 = klen[k2x,k2y,k2z]
+        @inbounds i3 = klen[k3x,k3y,k3z]
+        @inbounds mu = kmu[k1x,k1y,k1z]
+        Bk = real(grid_k[k1x,k1y,k1z]*grid_k[k2x,k2y,k2z]*conj(grid_k[k3x,k3y,k3z]))
+        @inbounds Nk[tid, i1, i2, i3] += 1 
+        @inbounds Bk[tid, i1, i2, i3, 1] += Bk
+        @inbounds Bk[tid, i1, i2, i3, 2] += Bk*(1 - mu^2)/2
+        @inbounds Bk[tid, i1, i2, i3, 3] += Bk*(3 - 30*mu^2 + 35*mu^4)/8
     end
    
     Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L/Nz)^6 /Nz^3
