@@ -1,3 +1,26 @@
+function create_klen_kmu_box(N)
+    klen = zeros(Int, 4*N+1,4*N+1,2*N+1)
+    kmu = zeros(4*N+1,4*N+1,2*N+1)
+    for i in 1:4*N+1, j in 1:4*N+1, k in 1:2N+1
+        inew = i - 2*N
+        jnew = j - 2*N
+        klen[i,j,k] = isqrt(inew^2 + jnew^2 + k^2)
+        kmu[i,j,k] = (k-1)/klen[i,j,k]
+    end
+    return klen, kmu
+end
+
+function cut_kgrid(N, grid_k)
+    Ngrid = size(grid_k)[3]
+    cut_grid_k = zeros(4*N+1,4*N+1,2*N+1)
+    for i in 1:4*N+1, j in 1:4*N+1, k in 1:2N+1
+        i <= 2*N ? iold = Ngrid - N + i - 1 : iold = i - 2*N
+        j <= 2*N ? jold = Ngrid - N + j - 1 : jold = j - 2*N 
+        cut_grid_k[i,j,k] = grid_k[iold,jold,k]
+    end
+    return cut_grid_k
+end
+    
 """
     bispectrum_bins(N)
 

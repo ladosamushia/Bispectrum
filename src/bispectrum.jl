@@ -1,57 +1,44 @@
-using Base.Threads
 using DelimitedFiles
 
 include("utilities.jl")
 include("bispectrum_utilities.jl")
 
 """
-    bispectrum(grid_k, dk, N, L, kmin, kmax)
+    bispectrum(grid_k, N, B0, B2, ind)
 
     Compute bispectrum.
 
     # Arguments
     - `grid_k::array{3,complex}`: Fourier grid.
-    - `dk::float`: k-bin spacing.
-    - `N::Int`: number of k bins.
-    - `L:float`: Size of the original box.
-    - `kmin:float`: Smallest k value to look at.
-    - `kmax:float`: Largest k value to look at.
+    - `N::Int`: Only go up to k = N*k_fundamental
+    - `B0::array{3,Float}': Array to store Bispectrum monopole
+    - `B2::array{3,Float}': Array to store Bispectrum quadrupole
+    - `ind::array{Int8}': Array to store the integer square roots
 
-    # Output
-    - `Bk::Array{float}`: Binned bispectrum.
+    B0 and B2 are not normalized (/Nk). This will happen later. There is no need
+to recompute Nk as it is a geometric factor and does not change.
+    Some entries in B0 and B2 will be zero. The ones that don't satisfy the
+triangular equality.
+    The isosceles triangles will be double counted.
+    The equilateral triangles will be six-fold counted.
 """
-function bispectrum(grid_k, N, L, klen, kmu)
-    # k1 and k2 can not be longer than this
-    maxk12 = ceil(Int, sqrt(3)*N)
-    # k3 can not be longer than this 
-    maxk3 = ceil(Int, 2*sqrt(3)*N)
-    Bk = zeros(nthreads(), maxk12, maxk12, maxk3, 3)
-    Nk = zeros(nthreads(), maxk12, maxk12, maxk3)
-
-    # kxy coordinates change from -N to N including 0 (2N+1 total)
-    # kz coordinate chagnes from 0 to N (N+1) total
-    # Julia indexing starts with 0 (0 -> 1, N -> N+1)
-    kxyrange = 1:2*N+1
-    kzrange = 1:N+1
-    @threads for k12xyz in iterators.product(kxyrange,kxyrange,kzrange,kxyrange,kxyrange,kzrange)
-        k1x, k1y, k1z, k2x, k2y, k2z = k12xyz
-        tid = threadid()
+function bispectrum(grid_k, N, B, ind)
+    for k1x in -N:N, k1y in -N:N, k1z in 0:N, k2x in -N:N, k2y in -N:N, k2z in 0:N
+        k1 = k1x^2 + k1y^2 + k1z^2+1
+        if k1 >= N^2 continue end
+        k2 = k2x^2 + k2y^2 + k2z^2+1
+        if k2 >= k1 continue end
         k3x = k1x + k2x
         k3y = k1y + k2y
         k3z = k1z + k2z
-        @inbounds i1 = klen[k1x,k1y,k1z]
-        @inbounds i2 = klen[k2x,k2y,k2z]
-        @inbounds i3 = klen[k3x,k3y,k3z]
-        @inbounds mu = kmu[k1x,k1y,k1z]
-        Bk = real(grid_k[k1x,k1y,k1z]*grid_k[k2x,k2y,k2z]*conj(grid_k[k3x,k3y,k3z]))
-        @inbounds Nk[tid, i1, i2, i3] += 1 
-        @inbounds Bk[tid, i1, i2, i3, 1] += Bk
-        @inbounds Bk[tid, i1, i2, i3, 2] += Bk*(1 - mu^2)/2
-        @inbounds Bk[tid, i1, i2, i3, 3] += Bk*(3 - 30*mu^2 + 35*mu^4)/8
-    end
-   
-    Bk = sum(Bk, dims=1) ./ sum(Nk, dims=1) * (L/Nz)^6 /Nz^3
-    return Bk
+        k3 = k3x^2 + k3y^2 + k3z^2+1
+        if k3 >= k2 continue end
+            ik1 = ind[k1]
+            ik2 = ind[k2]
+            ik3 = ind[k3]
+        @inbounds B[ik1,ik2,ik3] += real(grid_k[k1x+N+1,k1y+N+1,k1z+1]*grid_k[k2x+N+1,k2y+N+1,k2z+1]*conj(grid_k[k3x+N+1,k3y+N+1,k3z+1]))
+    end 
+    return 0
 end 
 
 """
