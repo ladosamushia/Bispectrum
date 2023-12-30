@@ -1,0 +1,43 @@
+        - include("../src/bispectrum_utilities.jl")
+        - 
+        2 function exact_bispectrum(grid_k, dk, N, L, kmin, kmax)
+        2     Nbins = bispectrum_bins(N)
+     2000     Bk = zeros(1, N, N, N)
+     2000     Nk = zeros(1, N, N, N)
+        2     Nx, Ny, Nz = size(grid_k)
+        - 
+        2     kx, ky, kz = Fourier_frequencies(Nz, L)
+        2     k_fundamental = kx[2] - kx[1]
+        2     Nmax = floor(Int, kmax / k_fundamental)
+        - 
+     1128     for ix1 in 0:Nmax, iy1 in -Nmax:Nmax, iz1 in -Nmax:Nmax
+    37426         l1 = sqrt(ix1^2 + iy1^2 + iz1^2)
+    74867         if l1 > kmax / k_fundamental || l1 <= kmin / k_fundamental continue end
+ 22917030         for ix2 in -Nmax:Nmax, iy2 in -Nmax:Nmax, iz2 in -Nmax:Nmax
+767413485             ix3 = - ix1 - ix2
+767413485             iy3 = - iy1 - iy2
+767413485             iz3 = - iz1 - iz2
+767413485             l2 = sqrt(ix2^2 + iy2^2 + iz2^2)
+1535059245             if l2 > l1 || l2 <= kmin / k_fundamental continue end
+206712868             l3 = sqrt(ix3^2 + iy3^2 + iz3^2) 
+413547954             if l3 > l2 || l3 <= kmin / k_fundamental continue end
+        -             
+        -             #i123 = tri_index(l1, l2, l3, dk / k_fundamental)
+ 32567840             ind1 = ceil(Int, (l1 - kmin / k_fundamental)/ (dk/ k_fundamental))
+ 32567840             ind2 = ceil(Int, (l2 - kmin / k_fundamental)/ (dk/ k_fundamental))
+ 32567840             ind3 = ceil(Int, (l3 - kmin / k_fundamental)/ (dk/ k_fundamental))
+        - 
+ 32567840             i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = get_indeces(ix1, ix2, ix3, iy1, iy2, iy3, iz1, iz2, iz3, Ngrid)
+        -                                     
+ 32567840             Bk_tmp = grid_k[i1n, j1n, k1n]
+ 65135680             if ix2 < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
+ 65135680             if ix3 < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
+        -             
+ 32567840             Nk[1, ind1, ind2, ind3] += 1 
+800018783             Bk[1, ind1, ind2, ind3] += real(Bk_tmp)           
+        -         end           
+        -     end
+        - 
+        4     Bk = Bk ./ Nk * (L / Nz)^6 / Nz^3
+        2     return Bk, Nk
+        - end

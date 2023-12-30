@@ -44,11 +44,23 @@ function bispectrum(grid_k, N, B0, B2, ind)
     return 0
 end 
 
-function compute_bispectrum(B, N)
-    Ngrid = size(B)[1]
-    for i in 1:Ngrid, j in 1:Ngrid, k in 1:Ngrid
-        B[i,j,k] /= N[i,j,k]
+function compute_bispectrum(B, N, Nf)
+    Nb = div(N,Nf)
+    Bnew = zeros(Nb, Nb, Nb)
+    Nnew = zeros(Int, Nb, Nb, Nb)
+    for i in 1:N, j in 1:N, k in 1:N
+        inew = div(i-1,Nf) + 1; if inew > Nb continue end
+        jnew = div(j-1,Nf) + 1; if jnew > Nb continue end
+        knew = div(k-1,Nf) + 1; if knew > Nb continue end
+        Bnew[inew,jnew,knew] += B[i,j,k]
+        Nnew[inew,jnew,knew] += N[i,j,k]
     end
+    for i in 1:Nb, j in 1:Nb, k in 1:Nb
+        if New[i,j,k] != 0
+            Bnew[i,j,k] /= Nnew[i,j,k]
+        end
+    end
+    return Bnew
 end
 
 """

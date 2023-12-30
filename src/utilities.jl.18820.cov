@@ -1,0 +1,86 @@
+        - using FFTW
+        - 
+        - """
+        -     Fourier_frequencies(N, L)
+        - 
+        -     Return Fourier modes.
+        - 
+        -     # Arguments: 
+        -     - `N::Int`: Size of the grid.
+        -     - `L::Float`: Size of the cube (in Mpc or Mpc/h).
+        - 
+        -     # Output:
+        -     - `kx:array`
+        -     - `ky:array`
+        -     - `kz:array`
+        - """
+        - 
+        9 function Fourier_frequencies(N, L)
+        9     kx = 2*pi*rfftfreq(N, N/L)
+        9     ky = 2*pi*fftfreq(N, N/L)
+        9     kz = 2*pi*fftfreq(N, N/L)
+        - 
+        9     return kx, ky, kz
+        - end
+        - 
+        - """
+        -     wrap_grid(i, Ngrid)
+        - 
+        -     Make sure index does not go outside 1 - Ngrid (periodic cube).
+        - 
+        -     # Arguments:
+        -     - `i::Int`: index.
+        -     - `Ngrid::Int`: size of the grid.
+        - 
+        -     # Output:
+        -     - `i::Int`: New index wrapped if necessary. Always between 1 - Ngrid.
+        - """
+        3 function wrap_grid(i, Ngrid)
+  6000048     if i < 1
+     7250         i += Ngrid
+  5992798     elseif i > Ngrid
+     7443         i -= Ngrid
+        -     end
+  6000048     return i
+        - end
+        - 
+        - """
+        -     wrap_L(x, L)
+        - 
+        -     Make sure x is between 0 and L
+        - 
+        -     # Arguments:
+        -     - `x::float`: coordinate
+        -     - `L::float`: grid size
+        - 
+        -     # Output:
+        -     - `xnew::float`: New coordinate brought inside 0 - L interval
+        - """
+        3 function wrap_L(x, L)
+        7     xnew = x
+        7     if x < 0
+        2         xnew = L + x
+        5     elseif x > L
+        2         xnew = x - L
+        -     end
+        7     return xnew
+        - end
+        - 
+        - """
+        -     distance_to_grid(x, dL, index)
+        - 
+        -     Return distance to grid point indexed by index. Wraps around periodic cubes properly.
+        - 
+        -     # Arguments:
+        -     - `x:float`: coordinate of a point
+        -     - `dL::float`: grid size
+        -     - `index::Int`: index of the grid point (dL*index distance away from the origin)
+        -     - `Ngrid::Int`: grid size
+        - """
+        - function distance_to_grid(x, dL, index, Ngrid)
+  6000045     s = abs(x - (dL*index - dL/2))/dL
+  6000045     if s > Ngrid/2
+    14691         s = Ngrid - s
+        -     end
+  6000045     return s
+        - end

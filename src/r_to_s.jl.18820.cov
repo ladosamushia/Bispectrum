@@ -1,0 +1,23 @@
+        - include("utilities.jl")
+        - 
+        - """
+        -    r_to_s(z, vz, a, H, L)
+        - 
+        -    Change the real-space position to the redshift-space.
+        - 
+        -     #Arguments
+        -     - `z::Array{float}`: real-space coordinate
+        -     - `vz::Array{float}`: redshift-space coordinate
+        -     - `a::float`: the scale factor
+        -     - `H::float`: Hubble parameter at that redshift in units of 100*h
+        -     - `L::float`: Size of the simulation
+        - """
+        - 
+        1 function r_to_s(z, vz, a, H, L)
+        1    znew = copy(z) 
+        2    for i in 1:length(z)
+        4        zz = z[i] + vz[i]/a/H
+        7        znew[i] = wrap_L(zz, L)
+        -     end
+        1     return znew
+        - end 

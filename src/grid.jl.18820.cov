@@ -1,0 +1,135 @@
+        - using FFTW
+        - 
+        - include("../src/utilities.jl")
+        - 
+        - """
+        -     Weight(s, order)
+        - 
+        -     Assign weight to nearby grid points based on distance.
+        - 
+        -     # Arguments
+        -     - `s::float`: distance to the grid point in units of grid size.
+        -     - `order::Int`: order of interpolation. can be 1 through 4.
+        - """
+        - function Weight(s, order)
+  6000045     if order == 1
+  1500000         if s <= 0.5
+   300000             return 1.0
+        -         else
+  1200000             return 0.0
+        -         end
+        -     end
+  4500045     if order == 2
+  1500000         if s <= 1.0
+   600000             return 1.0 - s
+        -         else 
+   900000             return 0.0
+        -         end
+        -     end
+  3000045     if order == 3
+  1500000         if s < 0.5
+   300000             return 0.75 - s^2
+  1200000         elseif s < 1.5
+   600000             return 0.5*(1.5 - s)^2
+        -         else
+   600000             return 0.0
+        -         end
+        -     end
+  1500045     if order == 4
+  1500045         if s < 1.0
+   600015             return 1.0/6.0*(4.0 - 6.0*s^2 + 3.0*s^3)
+   900030         elseif s < 2.0
+   600018             return 1.0/6.0*(2.0 - s)^3
+        -         else
+   300012             return 0.0
+        -         end
+        -     end
+        0     return 0.0
+        - end
+        - 
+        - 
+        - """
+        -     grid_r(Ngrid, x, y, z, order)
+        - 
+        -     Make a grid of particle distribution.
+        - 
+        -     # Arguments
+        -     - `Ngrid::Int`: number of grid cells.
+        -     - `x::float`: x coordinate.
+        -     - `y::float`: y coordinate.
+        -     - `z::float`: z coordinate.
+        -     - `order::Int`: assignment order. can be 1 through 4.
+        - 
+        -     # Output
+        -     - `grid::array{3}`: number of particles in each grid cell.
+        - """
+        5 function grid_r(Ngrid, x, y, z, order)
+        - 
+        5     xmax = maximum(x)
+        5     xmin = minimum(x)
+        5     ymax = maximum(y)
+        5     ymin = minimum(y)
+        5     zmax = maximum(z)
+        5     zmin = minimum(z)
+        - 
+        5     Lx = xmax - xmin
+        5     Ly = ymax - ymin
+        5     Lz = zmax - zmin
+        - 
+        5     dx = Lx/Ngrid
+        5     dy = Ly/Ngrid
+        5     dz = Lz/Ngrid
+        - 
+536871912     grid = zeros(Ngrid,Ngrid,Ngrid)
+        - 
+       10     for i in eachindex(x, y, z)
+        - 
+   400003         index_x = ceil(Int, x[i]/dx)
+   400003         index_y = ceil(Int, y[i]/dy)
+   400003         index_z = ceil(Int, z[i]/dz)
+        -         
+  2000015         Wx = zeros(5)
+  2000015         Wy = zeros(5)
+  2000015         Wz = zeros(5)
+  2000015         ix = zeros(Int, 5)
+  2000015         iy = zeros(Int, 5)
+  2000015         iz = zeros(Int, 5)
+   400003         for j in -2:2
+  3997595             ix[j+3] = wrap_grid(index_x + j, Ngrid)
+  2000015             s = distance_to_grid(x[i], dx, ix[j+3], Ngrid)
+  2400015             Wx[j+3] = Weight(s, order)
+  3997507             iy[j+3] = wrap_grid(index_y + j, Ngrid)
+  2000015             s = distance_to_grid(y[i], dy, iy[j+3], Ngrid)
+  2400015             Wy[j+3] = Weight(s, order)
+  3997739             iz[j+3] = wrap_grid(index_z + j, Ngrid)
+  2000015             s = distance_to_grid(z[i], dz, iz[j+3], Ngrid)
+  3600027             Wz[j+3] = Weight(s, order)
+        -         end
+        - 
+   400003         test_sum = 0.0
+   400003         for j in 1:5, k in 1:5, l in 1:5
+ 50000375             grid[ix[j], iy[k], iz[l]] += Wx[j]*Wy[k]*Wz[l]
+ 50400373             test_sum += Wx[j]*Wy[k]*Wz[l]
+        -         end
+        -     end
+        - 
+        5     return grid/sum(grid)*Ngrid^3 .- 1
+        - 
+        - end
+        - 
+        - """
+        -     grid_k(grid_r)
+        - 
+        -     Fourier transform real space grid.
+        - 
+        -     # Arguments
+        -     - `grid_r::array{3}`
+        - 
+        -     # Output
+        -     - `grid_k::array{3,complex}`
+        - """
+        2 function grid_k(grid_r)
+        - 
+        2     rfft(grid_r)
+        - 
+        - end
