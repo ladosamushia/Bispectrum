@@ -44,6 +44,13 @@ function bispectrum(grid_k, N, B0, B2, ind)
     return 0
 end 
 
+function compute_bispectrum(B, N)
+    Ngrid = size(B)[1]
+    for i in 1:Ngrid, j in 1:Ngrid, k in 1:Ngrid
+        B[i,j,k] /= N[i,j,k]
+    end
+end
+
 """
     write_bispectrum(Bk, dk, N, ofile)
 
