@@ -2,14 +2,24 @@ function cut_kgrid(N, grid_k)
     Ngrid = size(grid_k)[3]
     cut_grid_k = zeros(2*N+1,2*N+1,N+1)
     for i in 1:2*N+1, j in 1:2*N+1, k in 1:N+1
-        i < N ? iold = Ngrid - N + i - 1 : iold = i
-        j < N ? jold = Ngrid - N + j - 1 : jold = j
+        i <= N ? iold = Ngrid - N + i : iold = i - N
+        j <= N ? jold = Ngrid - N + j : jold = j - N
         cut_grid_k[i,j,k] = grid_k[iold,jold,k]
     end
     return cut_grid_k
 end
 
-function compute_Nk(N, Nk, ind)
+function compute_indeces(N)
+    Nsq = N^2
+    ind = zeros(Int8, Nsq+1)
+    for i in 1:Nsq+1
+        ind[i] = isqrt(i)
+    end
+    return ind
+end
+
+function compute_Nk(N, ind)
+    Nk = zeros(Int, N+1, N+1, N+1)
     for k1x in -N:N, k1y in -N:N, k1z in 0:N, k2x in -N:N, k2y in -N:N, k2z in 0:N
         k1 = k1x^2 + k1y^2 + k1z^2
         if k1 > N^2 || k1 == 0 continue end
@@ -25,4 +35,5 @@ function compute_Nk(N, Nk, ind)
         ik3 = ind[k3]
         @inbounds Nk[ik1,ik2,ik3] += 1
     end
+    return Nk
 end
