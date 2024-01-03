@@ -10,8 +10,7 @@ function read_Abacus(dirname, fnamebeg)
     y = nothing
     z = nothing
     for filename in readdir(dirname)
-        if filename[end-4:end] == ".fits" & filename[1:length(fnamebeg)] ==
-fnamebeg
+        if (filename[end-4:end] == ".fits") & (filename[1:length(fnamebeg)] == fnamebeg)
             println(filename)
             f = FITS(string(dirname, filename))
             xnew = read(f[2], "x")
@@ -32,7 +31,7 @@ fnamebeg
     return x, y, z
 end
 
-function compute_Abacus_bk(dirname, fnamebeg, output_file, dk, N, L)
+function compute_Abacus_bk(dirname, fnamebeg, output_file, dk, N, L, Ncounts)
     x, y, z = read_Abacus(dirname, fnamebeg)
-    compute_pk_bk(x, y, z, dk, N, L, output_file)
+    compute_pk_bk(x, y, z, dk, N, L, output_file, Ncounts)
 end
