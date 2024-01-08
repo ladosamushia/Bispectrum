@@ -1,43 +1,27 @@
 include("../src/bispectrum_utilities.jl")
 
-function exact_bispectrum(grid_k, dk, N, L, kmin, kmax)
-    Nbins = bispectrum_bins(N)
-    Bk = zeros(1, N, N, N)
-    Nk = zeros(1, N, N, N)
-    Nx, Ny, Nz = size(grid_k)
+function exact_bispectrum(gk, N)
+    Bk = zeros(N, N, N)
+    Nk = zeros(Int, N, N, N)
 
-    kx, ky, kz = Fourier_frequencies(Nz, L)
-    k_fundamental = kx[2] - kx[1]
-    Nmax = floor(Int, kmax / k_fundamental)
-
-    for ix1 in 0:Nmax, iy1 in -Nmax:Nmax, iz1 in -Nmax:Nmax
+    for ix1 in -N:N, iy1 in -N:N, iz1 in -N:N
         l1 = sqrt(ix1^2 + iy1^2 + iz1^2)
-        if l1 > kmax / k_fundamental || l1 <= kmin / k_fundamental continue end
-        for ix2 in -Nmax:Nmax, iy2 in -Nmax:Nmax, iz2 in -Nmax:Nmax
+        if l1 > N || l1 == 0 continue end
+        for ix2 in -N:N, iy2 in -N:N, iz2 in -N:N
+            l2 = sqrt(ix2^2 + iy2^2 + iz2^2)
+            if l2 > N || l2 == 0 continue end
             ix3 = - ix1 - ix2
             iy3 = - iy1 - iy2
             iz3 = - iz1 - iz2
-            l2 = sqrt(ix2^2 + iy2^2 + iz2^2)
-            if l2 > l1 || l2 <= kmin / k_fundamental continue end
             l3 = sqrt(ix3^2 + iy3^2 + iz3^2) 
-            if l3 > l2 || l3 <= kmin / k_fundamental continue end
-            
-            #i123 = tri_index(l1, l2, l3, dk / k_fundamental)
-            ind1 = ceil(Int, (l1 - kmin / k_fundamental)/ (dk/ k_fundamental))
-            ind2 = ceil(Int, (l2 - kmin / k_fundamental)/ (dk/ k_fundamental))
-            ind3 = ceil(Int, (l3 - kmin / k_fundamental)/ (dk/ k_fundamental))
+            if l3 > N || l3 == 0 continue end
+            ind1 = floor(Int, l1)
+            ind2 = floor(Int, l2)
+            ind3 = floor(Int, l3)
 
-            i1n, i2n, i3n, j1n, j2n, j3n, k1n, k2n, k3n = get_indeces(ix1, ix2, ix3, iy1, iy2, iy3, iz1, iz2, iz3, Ngrid)
-                                    
-            Bk_tmp = grid_k[i1n, j1n, k1n]
-            if ix2 < 0 Bk_tmp *= conj(grid_k[i2n, j2n, k2n]) else Bk_tmp *= grid_k[i2n, j2n, k2n] end
-            if ix3 < 0 Bk_tmp *= conj(grid_k[i3n, j3n, k3n]) else Bk_tmp *= grid_k[i3n, j3n, k3n] end
-            
-            Nk[1, ind1, ind2, ind3] += 1 
-            Bk[1, ind1, ind2, ind3] += real(Bk_tmp)           
+            Bk[ind1,ind2,ind3] += real(gk[ix1+N+1,iy1+N+1,iz1+N+1]*gk[ix2+N+1,iy2+N+1,iz2+N+1]*gk[ix3+N+1,iy3+N+1,iz3+N+1])
+            Nk[ind1, ind2, ind3] += 1          
         end           
     end
-
-    Bk = Bk ./ Nk * (L / Nz)^6 / Nz^3
     return Bk, Nk
 end

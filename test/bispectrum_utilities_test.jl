@@ -1,21 +1,26 @@
 using Test
+using FFTW
 
 include("../src/bispectrum_utilities.jl")
 
-@test bispectrum_bins(2) == 4
-@test bispectrum_bins(3) == 10
+function compute_indeces_test(N)
+    Nsq = N^2
+    ind = zeros(Int8, Nsq+1)
+    for i in 1:Nsq+1
+        ind[i] = isqrt(i)
+    end
+    return ind
+end
 
-#counter = 1
-#for i in 1:3, j in 1:i, k in 1:j
-#    @test tri_index(i, j, k, 1, 0) == counter
-#    global counter += 1
-#end
+ind1 = compute_indeces(100)
+ind2 = compute_indeces_test(100)
 
-#set_k2_min_max(k2min, k2max, l1, i, j, k, i2, j2)
+for i in 1:100
+    @test ind1[i] == ind2[i]
+end
 
-@test wrap_index(0, 257) == 1
-@test wrap_index(5, 257) == 6
-@test wrap_index(-3, 257) == 255
-@test wrap_index(-1, 257) == 257
+gr = rand(512, 512, 512)
+gkr = rfft(gr)
+gkc = fft(gr)
 
-@test get_indeces(3, -2, 0, 7, 257, -257, -15, 15, -1, 512) == (4, 3, 1, 8, 512 - 257 + 1, 512 - 257 + 1, 512 - 15 + 1, 512 - 15 + 1, 512 - 1 + 1)
+gkcut = cut_kgrid(10, gkr)

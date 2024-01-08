@@ -3,66 +3,42 @@ using DelimitedFiles
 include("utilities.jl")
 include("bispectrum_utilities.jl")
 
-"""
-    bispectrum(grid_k, N, B0, B2, ind)
+function bispectrum(gk, N, ind)
+    Bk = zeros(N, N, N)
+    Nk = zeros(N, N, N)
 
-    Compute bispectrum.
+    for ix1 in 0:N, iy1 in -N:N, iz1 in -N:N
+        if ix1 == 0 && (iy1 > 0 || (iy1 == 0 && iz1 > 0)) continue end
+        l1 = ix1^2 + iy1^2 + iz1^2
+        if l1 > N^2 || l1 == 0 continue end
+        ind1 = ind[l1]
+        for ix2 in -N:N, iy2 in -N:N, iz2 in -N:N
+            l2 = ix2^2 + iy2^2 + iz2^2
+            if l2 > l1 || l2 == 0 continue end
+            ind2 = ind[l2]
+            
+            ix3 = - ix1 - ix2
+            iy3 = - iy1 - iy2
+            iz3 = - iz1 - iz2
+            l3 = ix3^2 + iy3^2 + iz3^2
+            if l3 > l2 || l3 == 0 continue end
+            
 
-    # Arguments
-    - `grid_k::array{3,complex}`: Fourier grid.
-    - `N::Int`: Only go up to k = N*k_fundamental
-    - `B0::array{3,Float}': Array to store Bispectrum monopole
-    - `B2::array{3,Float}': Array to store Bispectrum quadrupole
-    - `ind::array{Int8}': Array to store the integer square roots
-
-    B0 and B2 are not normalized (/Nk). This will happen later. There is no need
-to recompute Nk as it is a geometric factor and does not change.
-    Some entries in B0 and B2 will be zero. The ones that don't satisfy the
-triangular equality.
-    The isosceles triangles will be double counted.
-    The equilateral triangles will be six-fold counted.
-"""
-function bispectrum(grid_k, N, B0, B2, ind)
-    Ngrid = size(grid_k)[3]
-    for k1x in 0:N, k1y in -N:N, k1z in -N:N, k2x in -N:N, k2y in -N:N, k2z in -N:N
-        k1 = sqrt(k1x^2 + k1y^2 + k1z^2)
-        if k1 > N || k1 == 0 continue end
-        k2 = sqrt(k2x^2 + k2y^2 + k2z^2)
-        if k2 > k1 || k2 == 0 continue end
-        k3x = - k1x - k2x
-        k3y = - k1y - k2y
-        k3z = - k1z - k2z
-        k3 = sqrt(k3x^2 + k3y^2 + k3z^2)
-        if k3 > k2 || k3 == 0 continue end
-        k1y < 0 ? ik1y = Ngrid + k1y + 1 : ik1y = k1y + 1
-        k1z < 0 ? ik1z = Ngrid + k1z + 1 : ik1z = k1z + 1
-        B_tmp = grid_k[k1x+1,ik1y,ik1z]
-        if k2x < 0
-            -k2y < 0 ? ik2y = Ngrid + -k2y + 1 : ik2y = -k2y + 1
-            -k2z < 0 ? ik2z = Ngrid + -k2z + 1 : ik2z = -k2z + 1
-            B_tmp *= conj(grid_k[-k2x+1,ik2y,ik2z])
-        else
-            k2y < 0 ? ik2y = Ngrid + k2y + 1 : ik2y = k2y + 1
-            k2z < 0 ? ik2z = Ngrid + k2z + 1 : ik2z = k2z + 1
-            B_tmp *= grid_k[k2x+1,ik2y,ik2z]
-        end
-        if k3x < 0
-            -k3y < 0 ? ik3y = Ngrid + -k3y + 1 : ik3y = -k3y + 1
-            -k3z < 0 ? ik3z = Ngrid + -k3z + 1 : ik3z = -k3z + 1
-            B_tmp *= conj(grid_k[-k3x+1,ik3y,ik3z])
-        else
-            k3y < 0 ? ik3y = Ngrid + k3y + 1 : ik3y = k3y + 1
-            k3z < 0 ? ik3z = Ngrid + k3z + 1 : ik3z = k3z + 1
-            B_tmp *= grid_k[k3x+1,ik3y,ik3z]
-        end
-        ik1 = floor(Int, k1)
-        ik2 = floor(Int, k2)
-        ik3 = floor(Int, k3)
-        B0[ik1,ik2,ik3] += real(B_tmp)
-        B2[ik1,ik2,ik3] += 1
-    end 
-    return 0
-end 
+            ind3 = ind[l3]
+            
+            s = 1
+            if l1 == l2 == l3
+                s = 6
+            elseif l1 == l2 || l2 == l3
+                s = 2
+            end
+            
+            Bk[ind1,ind2,ind3] += real(gk[ix1+N+1,iy1+N+1,iz1+N+1]*gk[ix2+N+1,iy2+N+1,iz2+N+1]*gk[ix3+N+1,iy3+N+1,iz3+N+1])/s
+            Nk[ind1,ind2,ind3] += 1/s               
+        end           
+    end
+    return Bk, Nk
+end
 
 function powerspectrum(grid_k, N, P0, B2, ind)
     for k1x in 0:N, k1y in -N:N, k1z in -N:N
@@ -83,9 +59,9 @@ function compute_bispectrum(B, N, Nf, Ncounts)
     Bnew = zeros(Nb, Nb, Nb)
     Nnew = zeros(Int, Nb, Nb, Nb)
     for i in 1:N, j in 1:N, k in 1:N
-        inew = div(i-1,Nf) + 1; if inew > Nb continue end
-        jnew = div(j-1,Nf) + 1; if jnew > Nb continue end
-        knew = div(k-1,Nf) + 1; if knew > Nb continue end
+        inew = div(i-1,Nf) + 1;
+        jnew = div(j-1,Nf) + 1;
+        knew = div(k-1,Nf) + 1;
         Bnew[inew,jnew,knew] += B[i,j,k]
         Nnew[inew,jnew,knew] += Ncounts[i,j,k]
     end

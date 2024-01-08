@@ -1,44 +1,25 @@
 using Test
+using FFTW
 
-include("../src/bispectrum.jl")
 include("exact_bispectrum.jl")
-Ngrid = 64
+include("../src/bispectrum_utilities.jl")
+include("../src/bispectrum.jl")
 
-gk = ones(div(Ngrid, 2) + 1, Ngrid, Ngrid)
-dk = 0.01
-N = 10
-L = 1000
-kmax = 0.1
+N = 512
+gr = rand(Float64, N, N, N)
+gk = rfft(gr)
 
-Bk, Nk = bispectrum(gk, dk, N, L, 0, kmax)
+gkcut = cut_kgrid(10, gk)
 
-for B in Bk
-    if isnan(B) == false
-        @test B == 1 * (L / Ngrid)^6 / Ngrid^3
-    end
-end
+ind = compute_indeces(100);
 
-gk = rand(ComplexF32, div(Ngrid, 2) + 1, Ngrid, Ngrid)
-Bk, Nk = bispectrum(gk, dk, N, L, 0, kmax)
-Bk_exact, Nk_exact = exact_bispectrum(gk, dk, N, L, 0, kmax)
+Bk, Nk = exact_bispectrum(gkcut, 10)
+alt_Bk, alt_Nk = bispectrum(gkcut, 10, ind)
 
-for i in eachindex(Bk)
-    if isnan(Bk[i]) == false
-        @test isapprox(Bk[i], Bk_exact[i])
-    end
-end
+Bk = simmetrize_bispectrum(Bk)
 
-dk = 0.01
-N = 10
-L = 1000
-kmin = 0.01
-kmax = kmin + dk*N
-
-Bk, Nk = bispectrum(gk, dk, N, L, kmin, kmax)
-Bk_exact, Nk_exact = exact_bispectrum(gk, dk, N, L, kmin, kmax)
-
-for i in eachindex(Bk)
-    if isnan(Bk[i]) == false
-        @test isapprox(Bk[i], Bk_exact[i])
+for i in 1:10, j in 1:10, k in 1:10
+    if alt_Nk[i,j,k] != 0
+        @test isapprox(Bk[i,j,k]./Nk[i,j,k], alt_Bk[i,j,k]./alt_Nk[i,j,k])
     end
 end

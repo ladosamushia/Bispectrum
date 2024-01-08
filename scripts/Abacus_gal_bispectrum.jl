@@ -2,16 +2,13 @@ using FITSIO
 
 include("./compute_bispectrum.jl")
 
-# Only read files that start with fnamebeg
-
-function read_Abacus(dirname, fnamebeg)
+function read_Abacus(dirname)
     first_file = true
     x = nothing
     y = nothing
     z = nothing
     for filename in readdir(dirname)
-        if (filename[end-4:end] == ".fits") & (filename[1:length(fnamebeg)] == fnamebeg)
-            println(filename)
+        if (filename[end-4:end] == ".fits")
             f = FITS(string(dirname, filename))
             xnew = read(f[2], "x")
             ynew = read(f[2], "y")
@@ -31,7 +28,7 @@ function read_Abacus(dirname, fnamebeg)
     return x, y, z
 end
 
-function compute_Abacus_bk(dirname, fnamebeg, output_file, dk, N, L, Ncounts)
-    x, y, z = read_Abacus(dirname, fnamebeg)
-    compute_pk_bk(x, y, z, dk, N, L, output_file, Ncounts)
+function compute_Abacus_bk(dirname, Ngrid, order, outfile, Nf)
+    x, y, z = read_Abacus(dirname)
+    compute_bk(Ngrid, x, y, z, order, outfile, Nf)
 end
