@@ -14,7 +14,7 @@ gkcut = cut_kgrid(10, gk)
 ind = compute_indeces(100);
 
 Bk, Nk = exact_bispectrum(gkcut, 10)
-alt_Bk, alt_Nk = bispectrum(gkcut, 10, ind)
+alt_Bk, alt_Nk = alt_bispectrum(gkcut, 10, ind)
 
 Bk = simmetrize_bispectrum(Bk)
 
